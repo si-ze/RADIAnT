@@ -1,0 +1,1 @@
+Contains ~1M RNA and ~1M DNA GRID-seq reads subsampled from publicly available sequencing data of mouse embryonic stem cells (GEO Accession: GSM2396700, [1st replicate](https://www.ncbi.nlm.nih.gov/sra/SRR5035944/)).
