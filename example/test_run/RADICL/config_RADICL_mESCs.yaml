@@ -1,7 +1,7 @@
 fastq_directory: ../../input/RADICL/ # must end with slash
 sample_base: 
 - mESC_2FA_n1_
-output_directory: ./ # must end with slash
+output_directory: ../RADICL/ # must end with slash
 method:
 # - GRID
 - RADICL
