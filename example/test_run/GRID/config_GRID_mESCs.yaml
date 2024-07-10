@@ -6,8 +6,8 @@ method:
 - GRID
 #- RADICL
 #- Red-C
-dna_fastq_suffix: DNA.fastq
-rna_fastq_suffix: RNA.fastq
+dna_fastq_suffix: DNA.fastq.gz
+rna_fastq_suffix: RNA.fastq.gz
 
 species: mouse
 gtf: ../../input/mouse/gencode.vM29.annotation.gtf 
