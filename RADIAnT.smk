@@ -45,6 +45,8 @@ outdir_counts = outdir_base + "counts/"
 
 outdir_interactions = outdir_base + "interactions/"
 
+outdir_logs = outdir_base + "logs/"
+
 # all
 
 if method == 'Red-C':
@@ -75,7 +77,9 @@ if method == 'Red-C':
             #expand(outdir_intersects + "{sample}RNA3_gene_unstranded_intersect.txt", sample=config["sample_base"]),
             #expand(outdir_counts + "{sample}RNA-bin_counts.txt", sample=config["sample_base"]),
             expand(outdir_interactions + "{sample}RADIAnT_results.txt", sample=config["sample_base"])
-
+            expand(outdir_logs + "{sample}sankey.svg", sample=config["sample_base"]), 
+            expand(outdir_logs + "{sample}sankey.png", sample=config["sample_base"]), 
+            expand(outdir_logs + "{sample}read_stats.txt", sample=config["sample_base"])
 else:
 
     rule all:
@@ -98,7 +102,9 @@ else:
             #expand(outdir_intersects + "{sample}DNA_bin_intersect_maximums_cut.txt", sample=config["sample_base"]),
             #expand(outdir_counts + "{sample}RNA-bin_counts.txt", sample=config["sample_base"]),
             expand(outdir_interactions + "{sample}RADIAnT_results.txt", sample=config["sample_base"])
-
+            expand(outdir_logs + "{sample}sankey.svg", sample=config["sample_base"]), 
+            expand(outdir_logs + "{sample}sankey.png", sample=config["sample_base"]), 
+            expand(outdir_logs + "{sample}read_stats.txt", sample=config["sample_base"])
 # Decompress FASTQs
 
 rule gunzip_dna:
@@ -393,7 +399,8 @@ if method == "Red-C":
             star_index = config["star_index"],
             base_name = outdir_bam + "{sample}"+'RNA5_'
         output:
-            aligned_rna = outdir_bam + "{sample}RNA5_Aligned.out.bam"
+            aligned_rna = outdir_bam + "{sample}RNA5_Aligned.out.bam",
+            rna_map_log = outdir_bam + "{sample}RNA5_Log.final.out"
         run:
             shell("{params.star_binary} \
                 --runThreadN {threads} \
@@ -639,7 +646,8 @@ if method == "Red-C":
             star_index = config["star_index"],
             base_name = outdir_bam + "{sample}"+'RNA3_'
         output:
-            aligned_rna = outdir_bam + "{sample}RNA3_Aligned.out.bam"
+            aligned_rna = outdir_bam + "{sample}RNA3_Aligned.out.bam", 
+            rna_map_log = outdir_bam + "{sample}RNA3_Log.final.out"
         run:
             shell("{params.star_binary} \
                 --runThreadN {threads} \
@@ -1151,7 +1159,8 @@ else:
             star_index = config["star_index"],
             base_name = outdir_bam + "{sample}"+'RNA_'
         output:
-            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bam"
+            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bam",
+            rna_map_log = outdir_bam + "{sample}RNA_Log.final.out"
         run:
             shell("{params.star_binary} \
                 --runThreadN {threads} \
@@ -1498,3 +1507,28 @@ rule radiant:
                --outdir {params.outdir} \
                --name {params.name}")
 
+
+if method == 'Red-C':
+    rule sankey: 
+        input: 
+            ribo_stats= fq_dir + "{sample}rRNA5_removal_stats.txt",
+            rna_map_log = outdir_bam + "{sample}RNA5_Log.final.out",
+            rna_bin_interactions = outdir_interactions + "{sample}RADIAnT_results.txt"
+        output:
+            svg = outdir_logs + "{sample}sankey.svg",
+            png = outdir_logs + "{sample}sankey.png",
+            txt = outdir_logs + "{sample}read_stats.txt"
+        run:
+            shell("Rscript /mnt/y/Fileserver_NGS/Current/RNA_DNA_interactions/Method/snakemake/utility_scripts/plot_read_stats.R {input.ribo_stats} {input.rna_map_log} {input.rna_bin_interactions} {output.svg} {output.png} {output.txt}")
+else:
+    rule sankey: 
+        input: 
+            ribo_stats= fq_dir + "{sample}rRNA_removal_stats.txt",
+            rna_map_log = outdir_bam + "{sample}RNA_Log.final.out",
+            rna_bin_interactions = outdir_interactions + "{sample}RADIAnT_results.txt"
+        output:
+            svg = outdir_logs + "{sample}sankey.svg",
+            png = outdir_logs + "{sample}sankey.png",
+            txt = outdir_logs + "{sample}read_stats.txt"
+        run:
+            shell("Rscript /mnt/y/Fileserver_NGS/Current/RNA_DNA_interactions/Method/snakemake/utility_scripts/plot_read_stats.R {input.ribo_stats} {input.rna_map_log} {input.rna_bin_interactions} {output.svg} {output.png} {output.txt}")
