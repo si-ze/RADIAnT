@@ -17,7 +17,7 @@
 
 
 # script directory
-
+workflow_dir = config['workflow_dir']
 
 
 
@@ -828,8 +828,10 @@ if method == "Red-C":
             multi_intersect = outdir_intersects + "{sample}RNA3_multi_gene_intersect.txt"
         output:
             maximum_intersects = outdir_intersects + "{sample}RNA3_gene_intersect_maximums_cut.txt"
+        params: 
+            intersect_processing = workflow_dir + "scripts/intersect_processing.R"
         run:
-            shell("Rscript /mnt/y/Fileserver_NGS/Current/RNA_DNA_interactions/Method/snakemake/utility_scripts/intersect_processing.R --unique {input.unique_intersect} --multi {input.multi_intersect} --output {output.maximum_intersects}")
+            shell("Rscript {params.intersect_processing} --unique {input.unique_intersect} --multi {input.multi_intersect} --output {output.maximum_intersects}")
 
     # # Add intersect as proportion of gene width column to RNA-gene intersect
 
@@ -1033,8 +1035,10 @@ if method == "Red-C":
             rna5_multi = outdir_intersects + "{sample}RNA5_gene_multi_unstranded_intersect.txt",
         output:
             max_intersects = outdir_intersects + "{sample}RNA_gene_intersect_maximums_cut.txt"
+        params: 
+            redc_intersect_max = workflow_dir + "scripts/redc_intersect_max.R"
         run:
-            shell("Rscript /mnt/y/Fileserver_NGS/Current/RNA_DNA_interactions/Method/snakemake/utility_scripts/redc_intersect_max.R --three {input.rna3_max} --uniquefive {input.rna5_unique} --multifive {input.rna5_multi} --output {output.max_intersects}")
+            shell("Rscript {params.redc_intersect_max} --three {input.rna3_max} --uniquefive {input.rna5_unique} --multifive {input.rna5_multi} --output {output.max_intersects}")
 
     # if config["redc_mode"] == "strict":
 
@@ -1467,8 +1471,10 @@ else:
             multi_intersect = outdir_intersects + "{sample}RNA_multi_gene_intersect.txt"
         output:
             maximum_intersects = outdir_intersects + "{sample}RNA_gene_intersect_maximums_cut.txt"
+        params: 
+            intersect_processing = workflow_dir + "scripts/intersect_processing.R"
         run:
-            shell("Rscript /mnt/y/Fileserver_NGS/Current/RNA_DNA_interactions/Method/snakemake/utility_scripts/intersect_processing.R --unique {input.unique_intersect} --multi {input.multi_intersect} --output {output.maximum_intersects}")
+            shell("Rscript {params.intersect_processing} --unique {input.unique_intersect} --multi {input.multi_intersect} --output {output.maximum_intersects}")
 
 # join RNA and DNA reads
 
@@ -1502,11 +1508,12 @@ rule radiant:
         bins = config["genome_bins"],
         species = config["species"],
         outdir = outdir_interactions,
-        name = "{sample}"
+        name = "{sample}",
+        RADIAnT_command_line = workflow_dir + "scripts/RADIAnT_command_line.R"
     output:
         rna_bin_interactions = outdir_interactions + "{sample}RADIAnT_results.txt"
     run:
-        shell("Rscript /mnt/y/Fileserver_NGS/Current/RNA_DNA_interactions/Method/snakemake/utility_scripts/RADIAnT_command_line.R \
+        shell("Rscript {params.RADIAnT_command_line} \
                --gtf {params.gtf} \
                --counts {input.counts} \
                --bins {params.bins} \
@@ -1525,8 +1532,10 @@ if method == 'Red-C':
             svg = outdir_logs + "{sample}sankey.svg",
             png = outdir_logs + "{sample}sankey.png",
             txt = outdir_logs + "{sample}read_stats.txt"
+        params: 
+            plot_read_stats = workflow_dir + "scripts/plot_read_stats.R"
         run:
-            shell("Rscript /mnt/y/Fileserver_NGS/Current/RNA_DNA_interactions/Method/snakemake/utility_scripts/plot_read_stats.R {input.ribo_stats} {input.rna_map_log} {input.rna_bin_interactions} {output.svg} {output.png} {output.txt}")
+            shell("Rscript {params.plot_read_stats} {input.ribo_stats} {input.rna_map_log} {input.rna_bin_interactions} {output.svg} {output.png} {output.txt}")
 else:
     rule sankey: 
         input: 
@@ -1537,5 +1546,7 @@ else:
             svg = outdir_logs + "{sample}sankey.svg",
             png = outdir_logs + "{sample}sankey.png",
             txt = outdir_logs + "{sample}read_stats.txt"
+        params: 
+            plot_read_stats = workflow_dir + "scripts/plot_read_stats.R"
         run:
-            shell("Rscript /mnt/y/Fileserver_NGS/Current/RNA_DNA_interactions/Method/snakemake/utility_scripts/plot_read_stats.R {input.ribo_stats} {input.rna_map_log} {input.rna_bin_interactions} {output.svg} {output.png} {output.txt}")
+            shell("Rscript {params.plot_read_stats} {input.ribo_stats} {input.rna_map_log} {input.rna_bin_interactions} {output.svg} {output.png} {output.txt}")

@@ -1,0 +1,53 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 32
+Rules claiming more threads will be scaled down.
+Job stats:
+job        count
+-------  -------
+all            1
+radiant        1
+sankey         1
+total          3
+
+Select jobs to execute...
+
+[Tue Jul 23 15:32:25 2024]
+rule radiant:
+    input: /mnt/d/upload_test/RADIAnT/results/counts/mESC_2FA_n1_RNA-bin_counts.txt
+    output: /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt
+    jobid: 1
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 15:32:57 2024]
+Finished job 1.
+1 of 3 steps (33%) done
+Select jobs to execute...
+
+[Tue Jul 23 15:32:57 2024]
+rule sankey:
+    input: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_rRNA_removal_stats.txt, /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Log.final.out, /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt
+    output: /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.svg, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.png, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_read_stats.txt
+    jobid: 28
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_read_stats.txt, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.png, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.svg; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt; Code has changed since last execution; Params have changed since last execution
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 15:33:01 2024]
+Finished job 28.
+2 of 3 steps (67%) done
+Select jobs to execute...
+
+[Tue Jul 23 15:33:01 2024]
+localrule all:
+    input: /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.svg, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.png, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_read_stats.txt
+    jobid: 0
+    reason: Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_read_stats.txt, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.png, /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.svg
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 15:33:01 2024]
+Finished job 0.
+3 of 3 steps (100%) done
+Complete log: .snakemake/log/2024-07-23T153224.429026.snakemake.log

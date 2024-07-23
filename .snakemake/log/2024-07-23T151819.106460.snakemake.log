@@ -1,0 +1,2 @@
+SyntaxError in file /mnt/d/upload_test/RADIAnT/workflow/RADIAnT.smk, line 833:
+Multiple run/shell/script/notebook/wrapper/template_engine/cwl keywords in rule process_intersections_rna3. (RADIAnT.smk, line 833)
