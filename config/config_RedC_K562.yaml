@@ -1,0 +1,30 @@
+fastq_directory: ../../input/RedC/ # must end with slash
+sample_base: 
+- Red-C_K562_N2_
+output_directory: ../RedC/ # must end with slash
+method:
+# - GRID
+# - RADICL
+- Red-C
+dna_fastq_suffix: DNA.fastq
+rna_fastq_suffix: RNA5.fastq
+rna_2_fastq_suffix: RNA3.fastq
+
+species: human
+gtf: ../../input/human/gencode.v45.annotation.gtf
+genome_bins: ../../input/human/hg38_genome_5kb_bins_named.bed
+genes: ../../input/human/gencode.v45.annotation.genes.bed
+blacklist: ../../input/human/hg38-blacklist.v2.bed
+rrna_fasta:  ../../input/human/Silva_rRNA_Homo_sapiens.fasta  
+
+threads: 8
+star_binary: # provide the path to the STAR binary, e.g. /home/user/STAR-2.7.9a/source/STAR
+star_index: # provide the path to the STAR index you constructed, e.g. /home/user/Annotation/STARindex
+bedtools_binary: # provide the path to the bedtools binary, e.g. /usr/bin/bedtools
+samtools_binary: # provide the path to the samtools binary, /usr/bin/samtools
+bamCoverage_binary: # provide the path to the bamCoverage binary, /home/user/.local/bin/bamCoverage
+bbduk_script: # provide the path to the bbduk script, /mnt/f/software/bbmap/bbduk.sh
+
+# how to run:
+# snakemake -s /path/to/Snakefile.smk --configfile=config_RedC_K562.yaml --cores 32
+

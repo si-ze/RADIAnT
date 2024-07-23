@@ -1,0 +1,28 @@
+fastq_directory: ../../input/GRID/ # must end with slash
+sample_base: 
+- GSM2396700_
+output_directory: ../GRID/ # must end with slash
+method:
+- GRID
+#- RADICL
+#- Red-C
+dna_fastq_suffix: DNA.fastq.gz
+rna_fastq_suffix: RNA.fastq.gz
+
+species: mouse
+gtf: ../../input/mouse/gencode.vM29.annotation.gtf 
+genome_bins: ../../input/mouse/mm39.05kb.bed
+genes: ../../input/mouse/mm39.ncbiRefSeq.genes.bed
+blacklist: ../../input/mouse/mm39.excluderanges.bed
+rrna_fasta:  ../../input/mouse/arb-silva.de_2024-03-25_id1313737_tax_silva_trunc.fasta  
+
+threads: 8
+star_binary: # provide the path to the STAR binary, e.g. /home/user/STAR-2.7.9a/source/STAR
+star_index: # provide the path to the STAR index you constructed, e.g. /home/user/Annotation/STARindex
+bedtools_binary: # provide the path to the bedtools binary, e.g. /usr/bin/bedtools
+samtools_binary: # provide the path to the samtools binary, /usr/bin/samtools
+bamCoverage_binary: # provide the path to the bamCoverage binary, /home/user/.local/bin/bamCoverage
+bbduk_script: # provide the path to the bbduk script, /mnt/f/software/bbmap/bbduk.sh
+
+# how to run:
+# snakemake -s /mnt/d/RADIAnT/example/Snakefile.smk --configfile=./config_GRID_mESCs.yaml --cores 32

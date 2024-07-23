@@ -1,1 +1,0 @@
-Contains ~1M [RNA](https://www.ncbi.nlm.nih.gov/sra/SRR9201807) and ~1M [DNA](https://www.ncbi.nlm.nih.gov/sra/SRR9201808) RADICL-seq reads subsampled from publicly available sequencing data of mouse embryonic stem cells (2nd replicate at 2% formaldehyde, GEO: GSE132190).

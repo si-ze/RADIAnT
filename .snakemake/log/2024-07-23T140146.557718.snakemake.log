@@ -1,0 +1,92 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 32
+Rules claiming more threads will be scaled down.
+Job stats:
+job                                         count
+----------------------------------------  -------
+align_dna                                       1
+align_rna                                       1
+all                                             1
+collate_dna                                     1
+collate_multi_rna                               1
+collate_unique_rna                              1
+count_joins                                     1
+dna_bin_intersect                               1
+fixmate_dna                                     1
+fixmate_multi_rna                               1
+fixmate_rna                                     1
+gunzip_dna                                      1
+gunzip_rna                                      1
+intersect_DNA_proportion                        1
+join_RNA_and_DNA                                1
+maximum_DNA_proportion                          1
+no_blacklist_dna                                1
+no_blacklist_rna                                1
+process_intersections                           1
+radiant                                         1
+remove_rrna                                     1
+rna_gene_intersect_stranded_radicl              1
+rna_gene_intersect_stranded_radicl_multi        1
+sankey                                          1
+sort_dna                                        1
+sort_multi_rna                                  1
+sort_rna                                        1
+unique_dna                                      1
+unique_rna                                      1
+total                                          29
+
+Select jobs to execute...
+
+[Tue Jul 23 14:01:46 2024]
+rule gunzip_rna:
+    input: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA.fastq.gz
+    output: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA.fastq
+    jobid: 13
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA.fastq
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:01:46 2024]
+rule gunzip_dna:
+    input: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_DNA.fastq.gz
+    output: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_DNA.fastq
+    jobid: 27
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_DNA.fastq
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:01:47 2024]
+Finished job 27.
+1 of 29 steps (3%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:01:47 2024]
+rule align_dna:
+    input: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_DNA.fastq
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bam
+    jobid: 26
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_DNA.fastq
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:01:47 2024]
+Finished job 13.
+2 of 29 steps (7%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:01:47 2024]
+rule remove_rrna:
+    input: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA.fastq
+    output: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA_depleted.fastq, /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_rRNA.fastq, /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_rRNA_removal_stats.txt
+    jobid: 12
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA_depleted.fastq, /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_rRNA_removal_stats.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA.fastq
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+Terminating processes on user request, this might take some time.
+Cancelling snakemake on user request.

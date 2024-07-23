@@ -1,0 +1,436 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 32
+Rules claiming more threads will be scaled down.
+Job stats:
+job                                         count
+----------------------------------------  -------
+align_dna                                       1
+align_rna                                       1
+all                                             1
+collate_dna                                     1
+collate_multi_rna                               1
+collate_unique_rna                              1
+count_joins                                     1
+dna_bin_intersect                               1
+fixmate_dna                                     1
+fixmate_multi_rna                               1
+fixmate_rna                                     1
+intersect_DNA_proportion                        1
+join_RNA_and_DNA                                1
+maximum_DNA_proportion                          1
+no_blacklist_dna                                1
+no_blacklist_rna                                1
+process_intersections                           1
+radiant                                         1
+remove_rrna                                     1
+rna_gene_intersect_stranded_radicl              1
+rna_gene_intersect_stranded_radicl_multi        1
+sankey                                          1
+sort_dna                                        1
+sort_multi_rna                                  1
+sort_rna                                        1
+unique_dna                                      1
+unique_rna                                      1
+total                                          27
+
+Select jobs to execute...
+
+[Tue Jul 23 14:05:21 2024]
+rule remove_rrna:
+    input: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA.fastq
+    output: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA_depleted.fastq, /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_rRNA.fastq, /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_rRNA_removal_stats.txt
+    jobid: 12
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_rRNA_removal_stats.txt, /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA_depleted.fastq
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:05:21 2024]
+rule align_dna:
+    input: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_DNA.fastq
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bam
+    jobid: 26
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:05:25 2024]
+Finished job 12.
+1 of 27 steps (4%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA.fastq.
+Select jobs to execute...
+
+[Tue Jul 23 14:05:25 2024]
+rule align_rna:
+    input: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA_depleted.fastq
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Aligned.out.bam, /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Log.final.out
+    jobid: 11
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Aligned.out.bam, /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Log.final.out; Input files updated by another job: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_RNA_depleted.fastq
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:09:54 2024]
+Finished job 11.
+2 of 27 steps (7%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:09:54 2024]
+rule no_blacklist_rna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Aligned.out.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Aligned.out.bl.bam
+    jobid: 10
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Aligned.out.bl.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Aligned.out.bam
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:09:55 2024]
+Finished job 26.
+3 of 27 steps (11%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_DNA.fastq.
+Select jobs to execute...
+
+[Tue Jul 23 14:09:55 2024]
+rule no_blacklist_dna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bl.bam
+    jobid: 25
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bl.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bam
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:09:58 2024]
+Finished job 10.
+4 of 27 steps (15%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:09:58 2024]
+rule unique_rna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Aligned.out.bl.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique.bam, /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi.bam
+    jobid: 9
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique.bam, /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Aligned.out.bl.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:00 2024]
+Finished job 9.
+5 of 27 steps (19%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Aligned.out.bl.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:00 2024]
+rule collate_unique_rna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique_collated.bam
+    jobid: 8
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique_collated.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:00 2024]
+rule collate_multi_rna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_collated.bam
+    jobid: 17
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_collated.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:01 2024]
+Finished job 25.
+6 of 27 steps (22%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:10:01 2024]
+rule unique_dna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bl.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_unique.bam
+    jobid: 24
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_unique.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bl.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:02 2024]
+Finished job 24.
+7 of 27 steps (26%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_Aligned.out.bl.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:02 2024]
+rule collate_dna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_unique.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_collated.bam
+    jobid: 23
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_collated.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_unique.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:03 2024]
+Finished job 8.
+8 of 27 steps (30%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:03 2024]
+rule fixmate_rna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique_collated.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_fixmate.bam
+    jobid: 7
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_fixmate.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique_collated.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:03 2024]
+Finished job 17.
+9 of 27 steps (33%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:03 2024]
+rule fixmate_multi_rna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_collated.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_fixmate.bam
+    jobid: 16
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_fixmate.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_collated.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:05 2024]
+Finished job 16.
+10 of 27 steps (37%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_collated.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:05 2024]
+rule sort_multi_rna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_fixmate.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_sorted.bam
+    jobid: 15
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_sorted.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_fixmate.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:05 2024]
+Finished job 7.
+11 of 27 steps (41%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_unique_collated.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:05 2024]
+rule sort_rna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_fixmate.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_sorted.bam
+    jobid: 6
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_sorted.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_fixmate.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:06 2024]
+Finished job 23.
+12 of 27 steps (44%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_unique.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:06 2024]
+rule fixmate_dna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_collated.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_fixmate.bam
+    jobid: 22
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_fixmate.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_collated.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:06 2024]
+Finished job 6.
+13 of 27 steps (48%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_fixmate.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:06 2024]
+rule rna_gene_intersect_stranded_radicl:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_sorted.bam
+    output: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_gene_intersect.txt
+    jobid: 5
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_gene_intersect.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_sorted.bam
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:06 2024]
+Finished job 15.
+14 of 27 steps (52%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_fixmate.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:06 2024]
+rule rna_gene_intersect_stranded_radicl_multi:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_sorted.bam
+    output: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_multi_gene_intersect.txt
+    jobid: 14
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_multi_gene_intersect.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_multi_sorted.bam
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:07 2024]
+Finished job 22.
+15 of 27 steps (56%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_collated.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:07 2024]
+rule sort_dna:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_fixmate.bam
+    output: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_sorted.bam
+    jobid: 21
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_sorted.bam; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_fixmate.bam
+    wildcards: sample=mESC_2FA_n1_
+    threads: 8
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:08 2024]
+Finished job 5.
+16 of 27 steps (59%) done
+[Tue Jul 23 14:10:08 2024]
+Finished job 14.
+17 of 27 steps (63%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:10:08 2024]
+rule process_intersections:
+    input: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_gene_intersect.txt, /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_multi_gene_intersect.txt
+    output: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_gene_intersect_maximums_cut.txt
+    jobid: 4
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_gene_intersect_maximums_cut.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_multi_gene_intersect.txt, /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_gene_intersect.txt
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:09 2024]
+Finished job 21.
+18 of 27 steps (67%) done
+Removing temporary output /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_fixmate.bam.
+Select jobs to execute...
+
+[Tue Jul 23 14:10:09 2024]
+rule dna_bin_intersect:
+    input: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_sorted.bam
+    output: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect.txt
+    jobid: 20
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_DNA_sorted.bam
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:11 2024]
+Finished job 4.
+19 of 27 steps (70%) done
+[Tue Jul 23 14:10:13 2024]
+Finished job 20.
+20 of 27 steps (74%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:10:13 2024]
+rule intersect_DNA_proportion:
+    input: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect.txt
+    output: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect_proportions.txt
+    jobid: 19
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect_proportions.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect.txt
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:14 2024]
+Finished job 19.
+21 of 27 steps (78%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:10:14 2024]
+rule maximum_DNA_proportion:
+    input: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect_proportions.txt
+    output: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect_maximums_cut.txt
+    jobid: 18
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect_maximums_cut.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect_proportions.txt
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:21 2024]
+Finished job 18.
+22 of 27 steps (81%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:10:21 2024]
+rule join_RNA_and_DNA:
+    input: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_gene_intersect_maximums_cut.txt, /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect_maximums_cut.txt
+    output: /mnt/d/upload_test/RADIAnT/results/merge/mESC_2FA_n1_RNA-bin_pairs.txt
+    jobid: 3
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/merge/mESC_2FA_n1_RNA-bin_pairs.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_DNA_bin_intersect_maximums_cut.txt, /mnt/d/upload_test/RADIAnT/results/intersects/mESC_2FA_n1_RNA_gene_intersect_maximums_cut.txt
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:22 2024]
+Finished job 3.
+23 of 27 steps (85%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:10:22 2024]
+rule count_joins:
+    input: /mnt/d/upload_test/RADIAnT/results/merge/mESC_2FA_n1_RNA-bin_pairs.txt
+    output: /mnt/d/upload_test/RADIAnT/results/counts/mESC_2FA_n1_RNA-bin_counts.txt
+    jobid: 2
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/counts/mESC_2FA_n1_RNA-bin_counts.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/merge/mESC_2FA_n1_RNA-bin_pairs.txt
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:23 2024]
+Finished job 2.
+24 of 27 steps (89%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:10:23 2024]
+rule radiant:
+    input: /mnt/d/upload_test/RADIAnT/results/counts/mESC_2FA_n1_RNA-bin_counts.txt
+    output: /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt
+    jobid: 1
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt; Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/counts/mESC_2FA_n1_RNA-bin_counts.txt
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:10:57 2024]
+Finished job 1.
+25 of 27 steps (93%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:10:57 2024]
+rule sankey:
+    input: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_rRNA_removal_stats.txt, /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Log.final.out, /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt
+    output: /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.svg, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.png, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_read_stats.txt
+    jobid: 28
+    reason: Missing output files: /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_read_stats.txt, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.svg, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.png; Input files updated by another job: /mnt/d/upload_test/RADIAnT/example/RADICL/mESC_2FA_n1_rRNA_removal_stats.txt, /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt, /mnt/d/upload_test/RADIAnT/results/bam/mESC_2FA_n1_RNA_Log.final.out
+    wildcards: sample=mESC_2FA_n1_
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:11:00 2024]
+Finished job 28.
+26 of 27 steps (96%) done
+Select jobs to execute...
+
+[Tue Jul 23 14:11:00 2024]
+localrule all:
+    input: /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.svg, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.png, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_read_stats.txt
+    jobid: 0
+    reason: Input files updated by another job: /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.svg, /mnt/d/upload_test/RADIAnT/results/interactions/mESC_2FA_n1_RADIAnT_results.txt, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_sankey.png, /mnt/d/upload_test/RADIAnT/results/logs/mESC_2FA_n1_read_stats.txt
+    resources: tmpdir=/tmp
+
+[Tue Jul 23 14:11:00 2024]
+Finished job 0.
+27 of 27 steps (100%) done
+Complete log: .snakemake/log/2024-07-23T140521.378765.snakemake.log

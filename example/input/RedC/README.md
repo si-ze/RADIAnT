@@ -1,1 +1,0 @@
-Contains ~1M RNA3, ~1M RNA5, and ~1M DNA Red-C reads subsampled from publicly available sequencing data of human K562 cells (GEO Accession: GSE136141, [2nd replicate](https://www.ncbi.nlm.nih.gov/sra/SRR10010330/)).
