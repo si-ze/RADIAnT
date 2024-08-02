@@ -96,27 +96,30 @@ RADIAnT/
         └── redc_intersect_max.R
 ```
 
-### Test data 
+## Example runs 
 
+The subdirectory ```config``` holds an exemplary configuration file for a RADIAnT analysis of GRID-sequencing data (```config_GRID_mESCs.yaml```),  RADICL-sequencing data (```config_RADICL_mESCs.yaml```),  and RedC data (```config_RedC_K562.yaml```), respectively. Input reads, sampled from publicly available data, can be found in the subdirectory  ```example``` . \\\
 
-In the fastq directory, processed versions of the reads will be added. 
+To e.g. run the RADICL test case, issue 
 
-```
-RADIAnT/
-│
-...
-├── example
-│   ...
-│   ├── RADICL
-│   │   ├── ...
-│   │   ├── mESC_2FA_n1_RNA_depleted.fastq
-│   │   ├── mESC_2FA_n1_rRNA.fastq
-│   │   └── mESC_2FA_n1_rRNA_removal_stats.txt
-...
-│
-│
+```snakemake -s /mnt/d/github_test/RADIAnT/workflow/RADIAnT.smk --configfile=/mnt/d/github_test/RADIAnT/config/config_RADICL_mESCs.yaml --cores 32```
+
+Any of the provided config files will create a new subdirectory in the ```RADIAnT``` directory, called ```results```. For each of the different sequencing methods, another subdirectory will be created in ```results```, holding the outputs of the RADIAnT pipeline. The location of the output files can be defined in the configuration file (parameter ```output_directory```).
 
 ```
+RADIAnT/results/RADICL/
+├── bam
+├── counts
+├── fastq
+├── interactions
+├── intersects
+├── logs
+└── merge
+```
+
+The main results are located in the ```interactions``` direcotry and described in the following subsection. 
+
+
 
 ### Output figures
 
