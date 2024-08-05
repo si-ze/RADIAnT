@@ -44,6 +44,8 @@ outdir_bam = outdir_base + "bam/"
 
 outdir_bw = outdir_base + "bw/"
 
+outdir_fastq = outdir_base + "fastq/"
+
 outdir_intersects = outdir_base + "intersects/"
 
 outdir_merge = outdir_base + "merge/"
@@ -86,9 +88,10 @@ if method == 'Red-C':
             expand(outdir_interactions + "{sample}RADIAnT_results.txt", sample=config["sample_base"]),
             expand(outdir_logs + "{sample}sankey.svg", sample=config["sample_base"]), 
             expand(outdir_logs + "{sample}sankey.png", sample=config["sample_base"]), 
-            expand(outdir_logs + "{sample}read_stats.txt", sample=config["sample_base"])
-else:
+            expand(outdir_logs + "{sample}read_stats.txt", sample=config["sample_base"]),
+            expand(outdir_interactions + "{sample}genes.number_of_interactions.txt", sample=config["sample_base"])
 
+else:
     rule all:
         input:
             #expand("{sample}DNA_dedup.bam", sample=config["sample_base"]),
@@ -111,7 +114,8 @@ else:
             expand(outdir_interactions + "{sample}RADIAnT_results.txt", sample=config["sample_base"]),
             expand(outdir_logs + "{sample}sankey.svg", sample=config["sample_base"]), 
             expand(outdir_logs + "{sample}sankey.png", sample=config["sample_base"]), 
-            expand(outdir_logs + "{sample}read_stats.txt", sample=config["sample_base"])
+            expand(outdir_logs + "{sample}read_stats.txt", sample=config["sample_base"]),
+            expand(outdir_interactions + "{sample}genes.number_of_interactions.txt", sample=config["sample_base"])
 # Decompress FASTQs
 
 rule gunzip_dna:
@@ -379,9 +383,9 @@ if method == "Red-C":
             rrna_index = config["rrna_fasta"],
             bbduk = config["bbduk_script"]
         output:
-            rna_clean = fq_dir + "{sample}RNA5_depleted.fastq",
-            rna_ribo = fq_dir + "{sample}rRNA5.fastq",
-            stats= fq_dir + "{sample}rRNA5_removal_stats.txt"
+            rna_clean = outdir_fastq + "{sample}RNA5_depleted.fastq",
+            rna_ribo = outdir_fastq + "{sample}rRNA5.fastq",
+            stats= outdir_fastq + "{sample}rRNA5_removal_stats.txt"
         run:
             shell("{params.bbduk} in={input.rna_fastq} out={output.rna_clean} outm={output.rna_ribo} ref={params.rrna_index} k=13 hdist=1 stats={output.stats}")
             #shell("ribodetector_cpu -t {threads} -i {input.rna_fastq} -l 21 -e rrna --chunk_size 256 -o {output.rna_clean}")
@@ -392,13 +396,13 @@ if method == "Red-C":
     #     threads:
     #         config["threads"]
     #     output:
-    #         rna_clean = fq_dir + "{sample}RNA5_depleted.fastq"
+    #         rna_clean = outdir_fastq + "{sample}RNA5_depleted.fastq"
     #     run:
     #         shell("ribodetector_cpu -t {threads} -i {input.rna_fastq} -l 30 -e rrna --chunk_size 256 -o {output.rna_clean}")
     
     rule align_rna5:
         input:
-            rna_clean = fq_dir + "{sample}RNA5_depleted.fastq"
+            rna_clean = outdir_fastq + "{sample}RNA5_depleted.fastq"
         threads:
             config["threads"]
         params:
@@ -626,9 +630,9 @@ if method == "Red-C":
             rrna_index = config["rrna_fasta"],
             bbduk = config["bbduk_script"]
         output:
-            rna_clean = fq_dir + "{sample}RNA3_depleted.fastq",
-            rna_ribo = fq_dir + "{sample}rRNA3.fastq",
-            stats= fq_dir + "{sample}rRNA3_removal_stats.txt"
+            rna_clean = outdir_fastq + "{sample}RNA3_depleted.fastq",
+            rna_ribo = outdir_fastq + "{sample}rRNA3.fastq",
+            stats= outdir_fastq + "{sample}rRNA3_removal_stats.txt"
         run:
             shell("{params.bbduk} in={input.rna_fastq} out={output.rna_clean} outm={output.rna_ribo} ref={params.rrna_index} k=13 hdist=1 stats={output.stats}")
             #shell("ribodetector_cpu -t {threads} -i {input.rna_fastq} -l 21 -e rrna --chunk_size 256 -o {output.rna_clean}")
@@ -639,13 +643,13 @@ if method == "Red-C":
     #     threads:
     #         config["threads"]
     #     output:
-    #         rna_clean = fq_dir + "{sample}RNA3_depleted.fastq"
+    #         rna_clean = outdir_fastq + "{sample}RNA3_depleted.fastq"
     #     run:
     #         shell("ribodetector_cpu -t {threads} -i {input.rna_fastq} -l 30 -e rrna --chunk_size 256 -o {output.rna_clean}")
     
     rule align_rna3:
         input:
-            rna_clean = fq_dir + "{sample}RNA3_depleted.fastq"
+            rna_clean = outdir_fastq + "{sample}RNA3_depleted.fastq"
         threads:
             config["threads"]
         params:
@@ -874,9 +878,9 @@ if method == "Red-C":
     #         rrna_index = config["rrna_fasta"],
     #         bbduk = config["bbduk_script"]
     #     output:
-    #         rna_clean = fq_dir + "{sample}RNA3_depleted.fastq",
-    #         rna_ribo = fq_dir + "{sample}rRNA3.fastq",
-    #         stats= fq_dir + "{sample}rRNA3_removal_stats.txt"
+    #         rna_clean = outdir_fastq + "{sample}RNA3_depleted.fastq",
+    #         rna_ribo = outdir_fastq + "{sample}rRNA3.fastq",
+    #         stats= outdir_fastq + "{sample}rRNA3_removal_stats.txt"
     #     run:
     #         shell("{params.bbduk} in={input.rna_fastq} out={output.rna_clean} outm={output.rna_ribo} ref={params.rrna_index} k=13 hdist=1 stats={output.stats}")
     #         #shell("ribodetector_cpu -t {threads} -i {input.rna_fastq} -l 21 -e rrna --chunk_size 256 -o {output.rna_clean}")
@@ -887,13 +891,13 @@ if method == "Red-C":
     # #     threads:
     # #         config["threads"]
     # #     output:
-    # #         rna_clean = fq_dir + "{sample}RNA3_depleted.fastq"
+    # #         rna_clean = outdir_fastq + "{sample}RNA3_depleted.fastq"
     # #     run:
     # #         shell("ribodetector_cpu -t {threads} -i {input.rna_fastq} -l 20 -e rrna --chunk_size 4096 -o {output.rna_clean}")
 
     # rule align_rna3:
     #     input:
-    #         rna_clean = fq_dir + "{sample}RNA3_depleted.fastq"
+    #         rna_clean = outdir_fastq + "{sample}RNA3_depleted.fastq"
     #     threads:
     #         config["threads"]
     #     params:
@@ -1151,9 +1155,9 @@ else:
             rrna_index = config["rrna_fasta"],
             bbduk = config["bbduk_script"]
         output:
-            rna_clean = fq_dir + "{sample}RNA_depleted.fastq",
-            rna_ribo = fq_dir + "{sample}rRNA.fastq",
-            stats= fq_dir + "{sample}rRNA_removal_stats.txt"
+            rna_clean = outdir_fastq + "{sample}RNA_depleted.fastq",
+            rna_ribo = outdir_fastq + "{sample}rRNA.fastq",
+            stats= outdir_fastq + "{sample}rRNA_removal_stats.txt"
         run:
             shell("{params.bbduk} in={input.rna_fastq} out={output.rna_clean} outm={output.rna_ribo} ref={params.rrna_index} k=13 hdist=1 stats={output.stats}")
             #shell("ribodetector_cpu -t {threads} -i {input.rna_fastq} -l 21 -e rrna --chunk_size 256 -o {output.rna_clean}")
@@ -1162,7 +1166,7 @@ else:
 
     rule align_rna:
         input:
-            rna_clean = fq_dir + "{sample}RNA_depleted.fastq"
+            rna_clean = outdir_fastq + "{sample}RNA_depleted.fastq"
         threads:
             config["threads"]
         params:
@@ -1525,7 +1529,7 @@ rule radiant:
 if method == 'Red-C':
     rule sankey: 
         input: 
-            ribo_stats= fq_dir + "{sample}rRNA5_removal_stats.txt",
+            ribo_stats= outdir_fastq + "{sample}rRNA5_removal_stats.txt",
             rna_map_log = outdir_bam + "{sample}RNA5_Log.final.out",
             rna_bin_interactions = outdir_interactions + "{sample}RADIAnT_results.txt"
         output:
@@ -1539,7 +1543,7 @@ if method == 'Red-C':
 else:
     rule sankey: 
         input: 
-            ribo_stats= fq_dir + "{sample}rRNA_removal_stats.txt",
+            ribo_stats= outdir_fastq + "{sample}rRNA_removal_stats.txt",
             rna_map_log = outdir_bam + "{sample}RNA_Log.final.out",
             rna_bin_interactions = outdir_interactions + "{sample}RADIAnT_results.txt"
         output:
@@ -1550,3 +1554,21 @@ else:
             plot_read_stats = workflow_dir + "scripts/plot_read_stats.R"
         run:
             shell("Rscript {params.plot_read_stats} {input.ribo_stats} {input.rna_map_log} {input.rna_bin_interactions} {output.svg} {output.png} {output.txt}")
+
+
+
+
+rule gene_int_stats: 
+    input: 
+        rna_bin_interactions = outdir_interactions + "{sample}RADIAnT_results.txt"
+    params: 
+        plot_gene_stats = workflow_dir + "scripts/plot_gene_stats.R",
+        gtf = config["gtf"],
+        outdir_interactions = outdir_interactions
+    output:
+        txt = outdir_interactions + "{sample}genes.number_of_interactions.txt"
+    run:
+        shell("Rscript {params.plot_gene_stats} {input.rna_bin_interactions} {params.gtf} {params.outdir_interactions} {output.txt}")
+
+
+

@@ -75,8 +75,10 @@ to_multiply <- c("in_sig_ints", "not_in_sig_ints", "not_in_ints",  "multi", "unm
 
 
 
-read_counts$rounded_count <- ifelse(read_counts$count < 1e3, read_counts$count, ifelse(read_counts$count < 1e6, round(read_counts$count / 1e3), round(read_counts$count / 1e6)))
-read_counts$suffix <- ifelse(read_counts$count < 1e3, "", ifelse(read_counts$count < 1e6, "K", "M"))
+
+
+read_counts$rounded_count <- ifelse(round(read_counts$count) < 1e3, read_counts$count, ifelse(round(read_counts$count/ 1e3) < 1e3, round(read_counts$count / 1e3), round(read_counts$count / 1e6)))
+read_counts$suffix <- ifelse(round(read_counts$count) < 1e3, "", ifelse(round(read_counts$count/ 1e3) < 1e3, "K", "M"))
 read_counts$label <- paste0(read_counts$type, " (", read_counts$rounded_count, read_counts$suffix,  ")", sep = "")
 read_counts$label <- gsub("_", " ", read_counts$label)
 read_counts$label <- gsub("sig", "sig.", read_counts$label)

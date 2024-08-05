@@ -1,9 +1,9 @@
-workflow_dir: /mnt/d/upload_test/RADIAnT/workflow/
+workflow_dir: /mnt/d/github_test/RADIAnT/workflow/
 
-fastq_directory: /mnt/d/upload_test/RADIAnT/example/RADICL/ 
+fastq_directory: /mnt/d/github_test/RADIAnT/example/RADICL/ 
 sample_base: 
 - mESC_2FA_n1_
-output_directory: /mnt/d/upload_test/RADIAnT/results/ 
+output_directory: /mnt/d/github_test/RADIAnT/results/RADICL/
 method:
 # - GRID
 - RADICL
@@ -12,11 +12,11 @@ dna_fastq_suffix: DNA.fastq
 rna_fastq_suffix: RNA.fastq
 
 species: mouse
-gtf: /mnt/d/upload_test/RADIAnT/resources/mouse/gencode.vM29.annotation.gtf.gz
-genome_bins: /mnt/d/upload_test/RADIAnT/resources/mouse/mm39.05kb.bed.gz
-genes: /mnt/d/upload_test/RADIAnT/resources/mouse/mm39.ncbiRefSeq.genes.bed.gz
-blacklist: /mnt/d/upload_test/RADIAnT/resources/mouse/mm39.excluderanges.bed.gz
-rrna_fasta:  /mnt/d/upload_test/RADIAnT/resources/mouse/arb-silva.de_2024-03-25_id1313737_tax_silva_trunc.fasta.gz
+gtf: /mnt/d/github_test/RADIAnT/resources/mouse/gencode.vM29.annotation.gtf.gz
+genome_bins: /mnt/d/github_test/RADIAnT/resources/mouse/mm39.05kb.bed.gz
+genes: /mnt/d/github_test/RADIAnT/resources/mouse/mm39.ncbiRefSeq.genes.bed.gz
+blacklist: /mnt/d/github_test/RADIAnT/resources/mouse/mm39.excluderanges.bed.gz
+rrna_fasta:  /mnt/d/github_test/RADIAnT/resources/mouse/arb-silva.de_2024-03-25_id1313737_tax_silva_trunc.fasta.gz
 
 # threads: 8
 # star_binary: # provide the path to the STAR binary, e.g. /home/user/STAR-2.7.9a/source/STAR
@@ -27,11 +27,11 @@ rrna_fasta:  /mnt/d/upload_test/RADIAnT/resources/mouse/arb-silva.de_2024-03-25_
 # bbduk_script: # provide the path to the bbduk script, /mnt/f/software/bbmap/bbduk.sh
 
 # how to run:
-# snakemake -s /mnt/d/upload_test/RADIAnT/workflow/RADIAnT.smk --configfile=/mnt/d/upload_test/RADIAnT/config/config_RADICL_mESCs.yaml --cores 32
+# snakemake -s /mnt/d/github_test/RADIAnT/workflow/RADIAnT.smk --configfile=/mnt/d/github_test/RADIAnT/config/config_RADICL_mESCs.yaml --cores 32
 
 threads: 8
 star_binary: /home/zehr/software/STAR-2.7.9a/source/STAR
-star_index: /mnt/v/Projects/Timothy/Triplex/RADICL/DeepLearning/RADICL_analysis/Annotation/STARindex
+star_index: /mnt/v/Projects/Timothy/Obsolete/Triplex/RADICL/DeepLearning/RADICL_analysis/Annotation/STARindex
 samtools_binary: /usr/bin/samtools
 bamCoverage_binary: /home/zehr/.local/bin/bamCoverage
 bedtools_binary: /usr/bin/bedtools
