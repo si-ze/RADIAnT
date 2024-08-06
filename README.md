@@ -36,7 +36,10 @@ or using pip:
 
 Navigate to the directory to which you have downloaded the RADIAnT repository and issue the snakemake command. Example using the provided test files 
 
-```snakemake -s /mnt/d/RADIAnT/example/Snakefile.smk --configfile=example/test_run/config_RADICL_mESCs.yaml --cores 32```
+```snakemake -s /path/to/RADIAnT/example/Snakefile.smk --configfile=example/test_run/config_RADICL_mESCs.yaml --cores 32```
+
+Please make sure to substitue ```/path/to/``` with the absolute path of the directory the RADIAnT repository has been cloned to on your local machine - **both** in the command issued **and** in the config files. 
+
 
 ##  Git repository structure
 
@@ -102,7 +105,7 @@ The subdirectory ```config``` holds an exemplary configuration file for a RADIAn
 
 To e.g. run the RADICL test case, issue 
 
-```snakemake -s /mnt/d/github_test/RADIAnT/workflow/RADIAnT.smk --configfile=/mnt/d/github_test/RADIAnT/config/config_RADICL_mESCs.yaml --cores 32```
+```snakemake -s /path/to/RADIAnT/workflow/RADIAnT.smk --configfile=/path/to/RADIAnT/config/config_RADICL_mESCs.yaml --cores 32```
 
 Any of the provided config files will create a new subdirectory in the ```RADIAnT``` directory, called ```results```. For each of the different sequencing methods, another subdirectory will be created in ```results```, holding the outputs of the RADIAnT pipeline. The location of the output files can be defined in the configuration file (parameter ```output_directory```).
 
@@ -125,11 +128,103 @@ The main results are located in the ```interactions``` direcotry and described i
 
 RADIAnT outputs several logs and figures.
 
+-------------------------------------------------------------------------------
+
+```
+RADIAnT/results/RADICL/
+├── ...
+├── logs 📂
+    └── *_read_stats.txt
+    └── *_sankey.*
+├── ...
+```
+
+
 The Sankey plot illustrates the information flow through the pipeline, providing insight into the efficiency of the sequencing method at hand. It provides insight into the proportion of initial input reads considered valid post preprocessing and how many of those are linked to significant interactions. The corresponding counts can be found in the ```*_read_stats.txt```
 
+
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/2a68de4a-b972-4efb-aada-b7efdac537f9" width=75% height=75%>
+  <img src="https://github.com/user-attachments/assets/2a68de4a-b972-4efb-aada-b7efdac537f9" width=55% height=55%>
 </p>
+
+
+
+-------------------------------------------------------------------------------
+```
+RADIAnT/results/RADICL/
+├── ...
+├── interactions 📂
+    └── ...
+    └── *_RADIAnT_results.txt
+    └── ...
+├── ...
+```
+
+```*_RADIAnT_results.txt``` is the **main output file** hodling ALL (also not significant) interactions, information on the RNA and DNA parts involved on the information, as well as significance values. The results are provided in a tab-delimited table.  Examplary exerpt: 
+
+```
+InteractionID      Symbol  Bin     BinChr  BinCentre       GeneChr GeneLeft        GeneRight       ReadCount       ExpectedCount  Method  OriginalMethod  P       Padj
+...
+Neat1::chr19_1839       Neat1   chr19_1839      chr19   9192500 chr19   5867500 5902500 2       0.000423059069622596  Distance    Cis      8.94642526389563e-08    1.65994756850035e-07
+Neat1::chr19_3788       Neat1   chr19_3788      chr19   18937500        chr19   5867500 5902500 1       7.05098449370993e-05    Distance Cis     1       1
+Necab2::chr8_24172      Necab2  chr8_24172      chr8    120857500       chr8    120167500       120202500       1     0.000111640587817074    Distance Cis     1       1
+Necab3::chr2_10018      Necab3  chr2_10018      chr2    50087500        chr2    154382500       154407500       1     2.35032816456998e-05    Bin      Cis     1       1
+Necab3::chr2_31558      Necab3  chr2_31558      chr2    157787500       chr2    154382500       154407500       1     0.000117516408228499    Distance Cis     1       1
+...
+```
+
+The columns hold the following information: 
+
+
+| Column        | Description                                                                                                                                 |
+|---------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| InteractionID    | Gene name (HGNC symbol) of interacting RNA part                                                                                             |
+| Symbol        | Gene name (HGNC symbol) of interacting RNA part                                                                                             |
+| Bin           | Bin identifier of interacting DNA part<br>(format: BinChr_BinNum where BinNum is the enumerator of the 5kb DNA bin on the given chromosome) |
+| BinChr        | Chromosome which the interacting DNA bin is located on                                                                                      |
+| BinCentre     | Centre of interacting DNA bin (for distance calculation)                                                                                    |
+| GeneChr       | Chromosome which the interacting RNA part is located on                                                                                     |
+| GeneLeft      | Leftmost gene coordinate ("start") of interacting RNA part                                                                                  |
+| GeneRight     | Rightmost gene coordinate ("end") of interacting RNA part                                                                                   |
+| ReadCount     | Number of RNA-DNA reads supporting this interaction                                                                                         |
+| ExpectedCount | Expected count modelled by background frequency x RNA abundance                                                                             |
+| Method        | Method selected for background construction<br>(maximum value arising from distance-based or bin-based approach?)                           |
+| P             | Poisson test significance value (ReadCount > ExpectedCount?)                                                                                |
+| Padj          | Poisson test significance value after correction for multiple testing                                                                       |
+|               |                                                                                                                                             |
+
+
+-------------------------------------------------------------------------------
+```
+RADIAnT/results/RADICL/
+├── ...
+├── interactions 📂
+    └── ...
+    └── genes_venn.total_intra_trans.*
+    └── ...
+├── ...
+```
+
+The Venn diagram shows the proportions of genes with significant intrachromosomal interactions, with significant transchromsomal interactions, genes with both kinds of interactions, and genes simply annotated not interacting with chromatin in a significant manner. Counts can be found in the file ```*_genes.number_of_interactions.txt```, with the columns ```Symbol``` (gene name), ```Type``` (of count: transchromosomal or intrachromosomal), ```Total_Interactions``` (count) and ```Significant_Interactions``` (count). 
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7aadf29b-8717-45a0-96c0-cbf79893a8a9" width=50% height=50%>
+</p>
+
+-------------------------------------------------------------------------------
+```
+RADIAnT/results/RADICL/
+├── ...
+├── interactions 📂
+    └── ...
+    └── genes_barplot.all_interactions.*
+    └── genes_barplot.all_reads.*
+    └── genes_barplot.significant_interactions.*
+    └── genes_barplot.significant_reads.*
+    └── genes_barplot.significant_reads.*
+    └── ...
+├── ...
+```
 
 
 ```genes_barplot.all_interactions.png``` and ```genes_barplot.significant_interactions.png``` show the top 15 genes by total number of interactions and significant number of interactions, respectively. 
@@ -148,4 +243,11 @@ The Sankey plot illustrates the information flow through the pipeline, providing
   <img src="https://github.com/user-attachments/assets/3408380a-698f-4146-bc72-02f8cd7c2a8e" width=45% height=45%>
   <img src="https://github.com/user-attachments/assets/e89670ef-0ec4-44a6-a6bf-b3b9dc84f943" width=45% height=45%>
 </p>
+
+-------------------------------------------------------------------------------
+
+
+
+
+ 
 
