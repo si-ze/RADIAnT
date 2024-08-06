@@ -1070,4 +1070,6 @@ combinedData$Padj[is.na(combinedData$Padj)] = 1
 
 # Write output
 
+combinedData <- combinedData %>% dplyr::rename(InteractionID = JoinColumn)
+
 data.table::fwrite(x = combinedData, file = paste0(outDir, experimentName, 'RADIAnT_results.txt'), quote = F, sep = '\t', eol = '\n', row.names = F, col.names = T)
