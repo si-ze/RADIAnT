@@ -178,7 +178,7 @@ The columns hold the following information:
 
 | Column        | Description                                                                                                                                 |
 |---------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| InteractionID    | Gene name (HGNC symbol) of interacting RNA part                                                                                             |
+| InteractionID | Unique interaction identifier                                                                                             |
 | Symbol        | Gene name (HGNC symbol) of interacting RNA part                                                                                             |
 | Bin           | Bin identifier of interacting DNA part<br>(format: BinChr_BinNum where BinNum is the enumerator of the 5kb DNA bin on the given chromosome) |
 | BinChr        | Chromosome which the interacting DNA bin is located on                                                                                      |
