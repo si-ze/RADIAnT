@@ -32,13 +32,32 @@ or using pip:
 ```pip install git+git://github.com/si-ze/RADIAnT.git```
 
 
-### Run
+### Configure the run 
+
+In ```/path/to/RADIAnT/config/``` example configuration files have been added for the analysis of RADICL-seq, GRID-seq and Red-C, respectively. Edit the adequate file to configure your snakemake run of RADIAnT. 
+* Replace ```/path/to/RADIAnT/``` with the absolute path of the local directory you have cloned the repository to
+* Specify sequencing method used to produce reads (```method``` variable) 
+* Provide RADIAnT with the aboslute path to the RADIANT ```workflow``` directory (```workflow_directory``` variable)
+* Provide RADIAnT with the aboslute path to the fastq files of your experiment (```fastq_directory``` variable)
+* All fastq files located in ```fastq_directory```which belong to the experiment to be analysed must start with the same prefix. Specify this in the ```sample_base``` variable.
+* Also specify the suffixes of the DNA and RNA reads. If for example your reads are named ```my_run.DNA.fastq``` and ```my_run.RNA.fastq```, set
+    * ```sample_base: my_run.```
+    * ```dna_fastq_suffix: DNA.fastq```
+    * ```rna_fastq_suffix: DNA.fastq```
+* Specify which directory the results should be written to (```output_directory``` variable)
+* Provide RADIAnT with information on the organism sequenced (```species``` variable, currently supoported: ```mouse``` and ```human```) and appropriate annotation files
+* Provide RADIAnT with information on where required bioinformatic tools have been installed to. 
+
+
+### Run RADIAnT
 
 Navigate to the directory to which you have downloaded the RADIAnT repository and issue the snakemake command. Example using the provided test files 
 
 ```snakemake -s /path/to/RADIAnT/example/Snakefile.smk --configfile=example/test_run/config_RADICL_mESCs.yaml --cores 32```
 
-Please make sure to substitue ```/path/to/``` with the absolute path of the directory the RADIAnT repository has been cloned to on your local machine - **both** in the command issued **and** in the config files. 
+Please make sure to **replace** ```/path/to/RADIAnT/``` with the **absolute path of the local directory** you have cloned the repository to. **Both** in 
+* the **command** issued to run snakemake and
+* in **all paths referenced in the config file**.
 
 
 ##  Git repository structure
