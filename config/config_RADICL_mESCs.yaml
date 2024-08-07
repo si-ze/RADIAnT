@@ -1,15 +1,18 @@
-workflow_dir: /path/to/RADIAnT/workflow/
-
-fastq_directory: /path/to/RADIAnT/example/RADICL/ 
-sample_base: 
-- mESC_2FA_n1_
-output_directory: /path/to/RADIAnT/results/RADICL/
 method:
 - RADICL
-dna_fastq_suffix: DNA.fastq
-rna_fastq_suffix: RNA.fastq
 
-species: mouse
+workflow_directory: /path/to/RADIAnT/workflow/ # Location of RADIAnT workflow (hodling snakemake file and scripts/ directory)
+
+fastq_directory: /path/to/RADIAnT/example/RADICL/ # Location of input fastq files
+sample_base: # Common prefix of all fastq files with reads belonging to the experiment to be analysed
+- mESC_2FA_n1_
+dna_fastq_suffix: DNA.fastq.gz
+rna_fastq_suffix: RNA.fastq.gz
+
+output_directory: /path/to/RADIAnT/results/RADICL/ # Specify location results should be written to
+
+
+species: mouse # currently supported: mouse and human
 gtf: /path/to/RADIAnT/resources/mouse/gencode.vM29.annotation.gtf.gz
 genome_bins: /path/to/RADIAnT/resources/mouse/mm39.05kb.bed.gz
 genes: /path/to/RADIAnT/resources/mouse/mm39.ncbiRefSeq.genes.bed.gz

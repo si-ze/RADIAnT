@@ -1,16 +1,18 @@
-workflow_dir: /path/to/RADIAnT/workflow/
-
-fastq_directory: /path/to/RADIAnT/example/RedC/ 
-sample_base: 
-- Red-C_K562_N2_
-output_directory: /path/to/RADIAnT/results/RedC/ 
 method:
 - Red-C
-dna_fastq_suffix: DNA.fastq
-rna_fastq_suffix: RNA5.fastq
-rna_2_fastq_suffix: RNA3.fastq
 
-species: human
+workflow_directory: /path/to/RADIAnT/workflow/ # Location of RADIAnT workflow (hodling snakemake file and scripts/ directory)
+
+fastq_directory: /path/to/RADIAnT/example/RedC/ # Location of input fastq files
+sample_base: # Common prefix of all fastq files with reads belonging to the experiment to be analysed
+- Red-C_K562_N2_
+dna_fastq_suffix: DNA.fastq.gz
+rna_fastq_suffix: RNA5.fastq.gz
+rna_2_fastq_suffix: RNA3.fastq.gz
+
+output_directory: /path/to/RADIAnT/results/RedC/ # Specify location results should be written to
+
+species: human # currently supported: mouse and human
 gtf: /path/to/RADIAnT/resources/human/gencode.v45.annotation.gtf
 genome_bins: /path/to/RADIAnT/resources/human/hg38_genome_5kb_bins_named.bed
 genes: /path/to/RADIAnT/resources/human/gencode.v45.annotation.genes.bed

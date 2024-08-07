@@ -1,15 +1,17 @@
-workflow_dir: /path/to/RADIAnT/workflow/
-
-fastq_directory: /path/to/RADIAnT/example/GRID/ 
-sample_base: 
-- GSM2396700_
-output_directory: /path/to/RADIAnT/results/GRID/
 method:
 - GRID
+
+workflow_directory: /path/to/RADIAnT/workflow/ # Location of RADIAnT workflow (hodling snakemake file and scripts/ directory)
+
+fastq_directory: /path/to/RADIAnT/example/GRID/ # Location of input fastq files
+sample_base: # Common prefix of all fastq files with reads belonging to the experiment to be analysed
+- GSM2396700_
 dna_fastq_suffix: DNA.fastq.gz
 rna_fastq_suffix: RNA.fastq.gz
 
-species: mouse
+output_directory: /path/to/RADIAnT/results/GRID/ # Specify location results should be written to
+
+species: mouse # currently supported: mouse and human
 gtf: /path/to/RADIAnT/resources/mouse/gencode.vM29.annotation.gtf.gz
 genome_bins: /path/to/RADIAnT/resources/mouse/mm39.05kb.bed.gz
 genes: /path/to/RADIAnT/resources/mouse/mm39.ncbiRefSeq.genes.bed.gz

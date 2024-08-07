@@ -17,7 +17,7 @@
 
 
 # script directory
-workflow_dir = config['workflow_dir']
+workflow_dir = config['workflow_directory']
 
 
 
@@ -25,7 +25,7 @@ workflow_dir = config['workflow_dir']
 
 method = config["method"][0]
 
-# FASTQ directory
+# Directory holding the fastq files of the experiment to be analysed
 
 fq_dir = config['fastq_directory']
 
