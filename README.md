@@ -35,7 +35,16 @@ or using pip:
 ### Configure the run 
 
 In ```/path/to/RADIAnT/config/``` example configuration files have been added for the analysis of RADICL-seq, GRID-seq and Red-C, respectively. Edit the adequate file to configure your snakemake run of RADIAnT. 
-* Replace ```/path/to/RADIAnT/``` with the absolute path of the local directory you have cloned the repository to
+* Replace ```/path/to/RADIAnT/``` with the absolute path of the local directory you have cloned the repository to. One way to do so is to replace  ```/path/to/RADIAnT/``` in an text editor. It could also be achieved using sed:
+
+```
+cd config
+mv config_RADICL_mESCs.yaml backup_config_RADICL_mESCs.yaml
+sed -e 's|/path/to/RADIAnT/|/my/actual/path/RADIAnT/|g' backup_config_RADICL_mESCs.yaml > config_RADICL_mESCs.yaml
+```
+
+where  ```/my/actual/path/RADIAnT/``` is the path output by running the  ```pwd``` command in the ```RADIAnT``` directory.
+
 * Specify sequencing method used to produce reads (```method``` variable) 
 * Provide RADIAnT with the aboslute path to the RADIANT ```workflow``` directory (```workflow_directory``` variable)
 * Provide RADIAnT with the aboslute path to the fastq files of your experiment (```fastq_directory``` variable)
@@ -53,11 +62,15 @@ In ```/path/to/RADIAnT/config/``` example configuration files have been added fo
 
 Navigate to the directory to which you have downloaded the RADIAnT repository and issue the snakemake command. Example using the provided test files 
 
-```snakemake -s /path/to/RADIAnT/example/Snakefile.smk --configfile=example/test_run/config_RADICL_mESCs.yaml --cores 32```
+```snakemake -s /path/to/RADIAnT/workflow/RADIAnT.smk --configfile=/path/to/RADIAnT/config/config_RADICL_mESCs.yaml --cores 8```
 
 Please make sure to **replace** ```/path/to/RADIAnT/``` with the **absolute path of the local directory** you have cloned the repository to. **Both** in 
 * the **command** issued to run snakemake and
 * in **all paths referenced in the config file**.
+
+
+
+
 
 
 ##  Git repository structure
