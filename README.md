@@ -25,7 +25,7 @@ RADIAnT is provided as a snakemake pipeline, which makes use of several bioinfor
 
 To obtain RADIAnT from GitHub, you can clone the directory in the following way:
 
-```git clone https://github.com/si-ze/RADIAnT.gitt```
+```git clone https://github.com/si-ze/RADIAnT.git```
 
 or using pip:
 
