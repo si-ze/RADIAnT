@@ -51,8 +51,9 @@ where  ```/my/actual/path/RADIAnT/``` is the path output by running the  ```pwd`
 * All fastq files located in ```fastq_directory```which belong to the experiment to be analysed must start with the same prefix. Specify this in the ```sample_base``` variable.
 * Also specify the suffixes of the DNA and RNA reads. If for example your reads are named ```my_run.DNA.fastq``` and ```my_run.RNA.fastq```, set
     * ```sample_base: my_run.```
-    * ```dna_fastq_suffix: DNA.fastq```
-    * ```rna_fastq_suffix: DNA.fastq```
+    * ```dna_fastq_suffix: DNA.fastq``` # This variable *must* end in ```fastq```. Even if the files are compressed: please *omit* the .gz extension.
+    * ```rna_fastq_suffix: RNA.fastq``` # This variable *must* end in ```fastq```. Even if the files are compressed: please *omit* the .gz extension.
+* Please note that the pipeline will automatically detect if the files are gzipped. Please *do not* add the .gz extension, the pipeline implicitly checks for that.
 * Specify which directory the results should be written to (```output_directory``` variable)
 * Provide RADIAnT with information on the organism sequenced (```species``` variable, currently supoported: ```mouse``` and ```human```) and appropriate annotation files
 * Provide RADIAnT with information on where required bioinformatic tools have been installed to. 
