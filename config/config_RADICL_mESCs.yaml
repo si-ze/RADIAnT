@@ -6,8 +6,10 @@ workflow_directory: /path/to/RADIAnT/workflow/ # Location of RADIAnT workflow (h
 fastq_directory: /path/to/RADIAnT/example/RADICL/ # Location of input fastq files
 sample_base: # Common prefix of all fastq files with reads belonging to the experiment to be analysed
 - mESC_2FA_n1_
-dna_fastq_suffix: DNA.fastq.gz
-rna_fastq_suffix: RNA.fastq.gz
+# Specify the suffixes of the DNA and RNA reads. DO NOT include .gz even if the reads are compressed. 
+# If for example your reads are named my_run.DNA.fastq and my_run.RNA.fastq, set sample_base: my_run., dna_fastq_suffix: DNA.fastq, rna_fastq_suffix: RNA.fastq
+dna_fastq_suffix: DNA.fastq.gz # should end in .fastq, not .gz, even if file is compressed
+rna_fastq_suffix: RNA.fastq.gz # should end in .fastq, not .gz, even if file is compressed
 
 output_directory: /path/to/RADIAnT/results/RADICL/ # Specify location results should be written to
 
