@@ -3,24 +3,14 @@ library(ggplot2)
 library(ggarchery)
 library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
-#library(EnsDb.Hsapiens.v86)
-#library(EnsDb.Mmusculus.v79)
-#library(org.Mm.eg.db)
-#library(org.Hs.eg.db)
 library(ChIPpeakAnno)
 library(GenomicRanges)
 library(GenomicFeatures)
 library(IRanges)
-#library(rcartocolor)
-#library(ggrepel)
 library(dplyr)
 library(purrr)
 library(pbapply)
 
-#library(RColorBrewer)
-#library(ggVennDiagram)
-#library(ComplexUpset)
-#library(viridis)
 
 # --------------------------
 
@@ -84,31 +74,9 @@ removeGeneOverlaps = function(geneDF){
 
 # Function to find the closest value in Bin Centre for snapping gene to right/left
 
-snapToBinCentre <- function(binAnnotationList, chr_name, gene_coord, left=TRUE) {
-  
-  # Extract the corresponding dataframe from binAnnotationList
-  my_chr_df <- binAnnotationList[[chr_name]]
-  
-  if (left) {
-    # for left gene ends, consider only bins left from gene    
-    my_chr_df <- my_chr_df[as.numeric(unlist(my_chr_df$Centre))<=gene_coord,]
-  } else { # otherwise only right bin centres
-    my_chr_df <- my_chr_df[as.numeric(unlist(my_chr_df$Centre))>=gene_coord,]
-  }
-  
-  # Find the index of the closest value in the "Bin Centre" column
-  closest_index <- which.min(abs(my_chr_df$Centre - gene_coord))
-  
-  
-  # Get the closest value in "Bin Centre"
-  closest_value <- my_chr_df$Centre[closest_index]
-  
-  return(as.numeric(unlist(closest_value)))
-}
-
 # Snapping function altered to use dplyr::round_any, faster
 
-snapToBinCentreTW = function(genes){
+snapToBinCentre = function(genes){
   
   geneSnapped = genes %>%
     dplyr::filter(type == 'gene') %>%
@@ -122,123 +90,10 @@ snapToBinCentreTW = function(genes){
   
 }
 
-# Function to read in required input data
-
-getInputDataSZ <- function(countsFile, binAnnotationFile, gtfFile) {
-  
-  # message("Reading GTF file ...")
-  # gtf = data.table::fread(gtfFile, sep = '\t', header = F)
-  # message("Constructing taxonomic database ...")
-  # myTxDB  =  makeTxDbFromGFF(file=gtfFile, format = "gtf")
-  # 
-  # 
-  # if(species == 'human'){
-  #     # ensdb = ensdb.Hsapiens.v86
-  #     ensdb = org.Hs.eg.db
-  # } else if(species == 'mouse'){
-  #     ensdb = org.Mm.eg.db
-  # }
-  
-  message("Reading in count data ...")
-  # read in interaction counts
-  counts <- data.table::fread(file = countFile) 
-  counts <- counts[,c("geneSymbol", "binID", "intctCounts")] 
-  colnames(counts) <- c("Symbol", "Bin", "ReadCount")
-  counts <- counts %>% group_by(Symbol, Bin) %>% summarise(ReadCount = sum(ReadCount))
-  # > head(counts)
-  #     Symbol        Bin ReadCount
-  # 1: Gm14508 chr5_22952    1
-  # 2:   C2cd5 chr6_28529    3
-  # 3:    Dbnl chr8_13600    1
-  
-  message("Reading in genome data ...")
-  binAnnotation = data.table::fread(file = binAnnotationFile)
-  colnames(binAnnotation) = c("BinChr", "BinStart", "BinEnd", "Bin")
-  # > head(binAnnotation)
-  #    BinChr BinStart BinEnd    Bin
-  # 1:   chr1        0   5000 chr1_1
-  # 2:   chr1     5000  10000 chr1_2
-  # 3:   chr1    10000  15000 chr1_3
-  
-  # remove bins with rare chrom annotations like "chr1_MU069434v1_random"
-  binAnnotation = binAnnotation[-grep('_', binAnnotation$BinChr)]
-  
-  # compute bin centre ...
-  binAnnotation$Centre = rowMeans(binAnnotation[,2:3])
-  # and add to interaction count info
-  counts[,c('BinChr', 'BinCentre')] = binAnnotation[match(counts$Bin, binAnnotation$Bin), c('BinChr', 'Centre')]
-  # > head(counts)
-  #     Symbol        Bin ReadCount BinChr BinCentre
-  # 1: Gm14508 chr5_22952    1   chr5 114757500
-  # 2:   C2cd5 chr6_28529    3   chr6 142642500
-  # 3:    Dbnl chr8_13600    1   chr8  67997500
-  
-  message("Getting info on genes ...")
-  
-  # read in gene info
-  message("Reading GTF...")
-  
-  genes = rtracklayer::readGFF(gtfFile)
-  
-  message('Snapping gene coordinates...')
-  
-  geneData = snapToBinCentreTW(genes)
-  
-  colnames(geneData) = c('seqnames', 'start', 'end', 'Symbol', 'GeneLeftSnapped', 'GeneRightSnapped')
-  
-  geneData$Symbol = make.unique(geneData$Symbol)
-  
-  # geneRanges = genes(myTxDB) # note: this function automatically assigns gene start as lesser than gene end
-  # names(geneRanges) = sub('\\..*', '', names(geneRanges))
-  # entrez2symbol = AnnotationDbi::select(x = ensdb, keys = names(geneRanges), columns = c('ENTREZID', 'SYMBOL'), keytype = 'ENSEMBL') # delete ENTREZID
-  # geneRanges$Symbol = entrez2symbol$SYMBOL[match(names(geneRanges), entrez2symbol$ENSEMBL)]
-  # geneRanges$Symbol[is.na(geneRanges$Symbol)] = names(geneRanges)[is.na(geneRanges$Symbol)]
-  # geneData = as.data.frame(geneRanges, row.names=NULL)
-  # #geneData$GeneStart = as.numeric(ifelse(geneData$strand == '-', yes = geneData$end, no = geneData$start))
-  # #geneData$GeneEnd = as.numeric(ifelse(geneData$strand == '-', yes = geneData$start, no = geneData$end))
-  # 
-  # 
-  # message("Correcting gene positions ...")
-  # # create seperate bin annotation tables per chromosome
-  # binAnnotationList = split(binAnnotation, binAnnotation$BinChr)
-  # 
-  # geneData$GeneCentre = as.numeric(rowMeans(geneData[,c('start', 'end')]))
-  # # snap left gene coordinates to next bin centre to the left
-  # geneData$GeneLeftSnapped <- apply(geneData, 1, function(gene) {
-  # snapToBinCentre(binAnnotationList, as.character(gene["seqnames"]), as.numeric(gene["start"]), left=TRUE)
-  # })
-  # geneData$GeneLeftSnapped <- as.numeric(geneData$GeneLeftSnapped)
-  # 
-  # # snap right gene coordinates to next bin centre to the right
-  # geneData$GeneRightSnapped <- apply(geneData, 1, function(gene) {
-  # snapToBinCentre(binAnnotationList, as.character(gene["seqnames"]), as.numeric(gene["end"]), left=FALSE)
-  # })
-  # geneData$GeneRightSnapped <- as.numeric(geneData$GeneRightSnapped)
-  # > head(geneData)
-  #                    seqnames     start       end  width strand  gene_id                Symbol GeneCentre GeneLeftSnapped GeneRightSnapped
-  # ENSMUSG00000000001     chr3 108014596 108053462  38867      -  ENSMUSG00000000001.5   Gnai3  108034029       108012500  108057500
-  # ENSMUSG00000000003     chrX  76881507  76897229  15723      -  ENSMUSG00000000003.16  Pbsn   76889368        76877500   76897500
-  # ENSMUSG00000000028    chr16  18599197  18630737  31541      -  ENSMUSG00000000028.16  Cdc45   18614967        18597500   18632500
-  
-  
-  inputData <- list(
-    "gtf"=genes, 
-    #"myTxDB"=myTxDB,
-    "counts"=counts,
-    "binAnnotation"=binAnnotation,
-    #"geneRanges"=geneRanges,
-    "geneData"=geneData
-    #"ensdb"=ensdb
-  )
-  
-  gc()
-  
-  return(inputData)
-}
 
 # Function to read in required input data updated
 
-getInputDataTW <- function(countsFile, binAnnotationFile, gtfFile) {
+getInputData <- function(countsFile, binAnnotationFile, gtfFile) {
   
   # Read in interaction counts
   
@@ -284,7 +139,7 @@ getInputDataTW <- function(countsFile, binAnnotationFile, gtfFile) {
   
   message('Snapping gene coordinates...')
   
-  geneData = snapToBinCentreTW(genes) # snaps using dplyr::round_any, faster than previous method
+  geneData = snapToBinCentre(genes) # snaps using dplyr::round_any, faster than previous method
   
   colnames(geneData) = c('seqnames', 'start', 'end', 'Symbol', 'GeneLeftSnapped', 'GeneRightSnapped')
   
@@ -400,135 +255,7 @@ getTransResults <- function(transCounts, transBinMeans, binAnnotation){
   # NAs occur in P & Padj when threshold isn't met 
 }
 
-getCisCounts <- function(bgCounts, binAnnotation, geneData) {
-  # subset to only cis frequencies
-  cisCounts = bgCounts[bgCounts$BinChr==bgCounts$GeneChr,] 
-  # compute distance
-  cisCounts$Distance = ifelse(cisCounts$BinCentre < cisCounts$GeneLeft, # if bin centre outside gene body (to the left)
-                              yes = cisCounts$BinCentre - cisCounts$GeneLeft, # compute distance between bins and gene left/right
-                              no =  ifelse(cisCounts$BinCentre > cisCounts$GeneRight, # if bin centre outside gene body (to the right)
-                                           yes = cisCounts$BinCentre - cisCounts$GeneRight, # compute distance between bins and gene left/right
-                                           no = NA)) # not interested bin centres falling within gene body
-  
-  # # ensure frequencies lie within window L
-  # cisCounts = cisCounts[abs(cisCounts$Distance) <= myL,] 
-  
-  
-  
-  
-  cisCounts = na.omit(cisCounts) # remove any NA values (likely gene body)
-  # > head(cisCounts)
-  #     Symbol        Bin ReadCount BinChr BinCentre GeneChr  GeneLeft GeneRight Distance
-  # 1:   C2cd5 chr6_28529    3   chr6 142642500    chr6 142952500 143047500 -310000
-  # 2: Macrod1 chr19_2102    1  chr19  10507500   chr19   7032500   7177500 3330000
-  # 3:  Lrrc8d chr5_21159   11   chr5 105792500    chr5 105847500 105982500 -55000
-  
-  cisCounts <- as.data.table(cisCounts)
-  
-  
-  # list all distances which are covered for each RNA
-  coveredDistances = paste0(cisCounts$Symbol, '::', cisCounts$Distance) 
-  # > head(coveredDistances)
-  # [1] "C2cd5::-310000"   "Macrod1::3330000" "Lrrc8d::-55000"   "Agap1::255000"   
-  # [5] "Lrrc8d::735000"   "Pex14::-685000"  
-  
-  # list all possible distances for every RNA
-  possibleDistances = unlist(pblapply(unique(cisCounts$Symbol), function(rna){ 
-    paste0(rna, '::', seq(-5000000, 5000000, by = 5000))
-  }))
-  
-  # subset to only those which have no frequency detected (i.e. zero bins)
-  uncoveredDistances = possibleDistances[!(possibleDistances %in% coveredDistances)] 
-  
-  
-  # create data.frame which contains all zero counts
-  zeroCounts = data.frame( 
-    Symbol = sub('::.*', '', uncoveredDistances),
-    Distance = as.numeric(sub('.*::', '', uncoveredDistances))
-  )
-  # > head(zeroCounts)
-  #   Symbol Distance ReadCount
-  # 1  C2cd5 -5000000    0
-  # 2  C2cd5 -4995000    0
-  # 3  C2cd5 -4990000    0
-  
-  # zeroCounts$GeneLeftSnapped <- inputData$geneData$GeneLeftSnapped[match(zeroCounts$Symbol, inputData$geneData$Symbol)]
-  # zeroCounts$GeneRightSnapped <- inputData$geneData$GeneRightSnapped[match(zeroCounts$Symbol, inputData$geneData$Symbol)]
-  # zeroCounts$GeneChr <- as.character(inputData$geneData$seqnames[match(zeroCounts$Symbol, inputData$geneData$Symbol)])
-  
-  zeroCounts[,c('GeneLeftSnapped', 'GeneRightSnapped', 'GeneChr')] = geneData[match(zeroCounts$Symbol, inputData$geneData$Symbol), c('GeneLeftSnapped', 'GeneRightSnapped', 'seqnames')]
-  
-  zeroCounts$BinCentre <- ifelse(zeroCounts$Distance<0, 
-                                 yes=zeroCounts$GeneLeftSnapped+zeroCounts$Distance,
-                                 no=zeroCounts$GeneRightSnapped+zeroCounts$Distance)
-  
-  chrMaxBins = binAnnotation[,.(ChrMax = max(BinEnd)), by = 'BinChr']
-  
-  zeroCounts$ChrMax = chrMaxBins$ChrMax[match(zeroCounts$GeneChr, chrMaxBins$BinChr)]
-  
-  zeroCounts = zeroCounts[zeroCounts$BinCentre >= 0 & zeroCounts$BinCentre <= zeroCounts$ChrMax,]
-  
-  zeroCounts$Bin = binAnnotation$Bin[match(paste0(zeroCounts$GeneChr,'::',zeroCounts$BinCentre), paste0(binAnnotation$BinChr, '::', binAnnotation$Centre))]
-  
-  #zeroCounts$Bin <- binAnnotation$Bin[binAnnotation$BinChr==zeroCounts$GeneChr & binAnnotation$Centre==zeroCounts$BinCentre]
-  
-  zeroCounts$ReadCount <- 0
-  
-  zeroCounts[,c("GeneLeftSnapped", "GeneRightSnapped", "GeneChr", "ChrMax", "BinCentre")] <- NULL
-  
-  # combine non-zero and zero interaction counts
-  # allCisCounts = rbind(zeroCounts, cisCounts[,c("Symbol","Distance","Bin","ReadCount")]) 
-  allCisCounts = rbind(zeroCounts, cisCounts[,.(Symbol,Distance,Bin,ReadCount)]) 
-  
-  
-  # compute total counts within L per RNA
-  rnaTotals = cisCounts[,.(TotalCisCount = sum(ReadCount)), by = Symbol] 
-  # > head(rnaTotals)
-  #     Symbol TotalCisCount
-  # 1:   C2cd5       622
-  # 2: Macrod1       479
-  # 3:  Lrrc8d      1591
-  
-  # add total counts to interaction counts
-  allCisCounts$TotalCisCount = rnaTotals$TotalCisCount[match(allCisCounts$Symbol, rnaTotals$Symbol)] 
-  # compute normalised interaction frequencies
-  allCisCounts$FreqNormByCisCount = allCisCounts$ReadCount/allCisCounts$TotalCisCount 
-  allCisCounts$FreqNormByCisCount[is.na(allCisCounts$FreqNormByCisCount)] = 0 # replace any NA values with zero
-  # > tail(allCisCounts)
-  #            Symbol Distance ReadCount TotalCisCount FreqNormByCisCount
-  # 39123457   Nfkbid -1600000    1        33     0.030303030
-  # 39123458    Kif3a -3180000    1        41     0.024390244
-  # 39123459    Barx2   150000    1         6     0.166666667
-  
-  
-  # calculate mean frequency per distance
-  cisDistanceCounts = setDT(allCisCounts)[,.(FreqNormByCisCount = mean(FreqNormByCisCount)), by = Distance] 
-  cisDistanceCounts$Type = 'Background' # add type column to background frequencies
-  # > head(cisDistanceCounts)
-  #    Distance FreqNormByCisCount       Type
-  # 1: -5000000    6.416667e-05 Background
-  # 2: -4995000    6.975770e-05 Background
-  # 3: -4990000    7.306042e-05 Background
-  
-  myCisCounts <- allCisCounts 
-  
-  # merge later 
-  # myCisCounts[,c("GeneChr", "GeneLeft", "GeneRight")] <- cisCounts[match(myCisCounts$Symbol, cisCounts$Symbol), c("GeneChr", "GeneLeft", "GeneRight")]
-  # myCisCounts$BinCentre <- ifelse(myCisCounts$Distance<0, (myCisCounts$GeneLeft+myCisCounts$Distance), (myCisCounts$GeneRight+myCisCounts$Distance))
-  # myCisCounts$BinChr <- myCisCounts$GeneChr
-  # tmpBinAnnotation <- binAnnotation
-  # names(tmpBinAnnotation)[5] <- "BinCentre"
-  # myCisCounts <- merge(myCisCounts, tmpBinAnnotation, by=c("BinChr", "BinCentre"))
-  
-  gc()
-  
-  return(list(
-    "cisDistanceCounts"=cisDistanceCounts,
-    "cisCounts"=myCisCounts
-  ))
-}
-
-getCisCountsTW <- function(counts, binAnnotation, geneData, window) {
+getCisCounts <- function(counts, binAnnotation, geneData, window) {
   
   # Subset counts to only those in window minus the gene body
   
@@ -576,64 +303,7 @@ getCisCountsTW <- function(counts, binAnnotation, geneData, window) {
 }
 
 
-getTransCounts <- function(bgCounts) {
-  
-  # define trans conditions
-  trans_conds = bgCounts$BinChr!=bgCounts$GeneChr | (bgCounts$BinCentre<(bgCounts$GeneLeft-myL)) | (bgCounts$BinCentre>(bgCounts$GeneRight+myL))
-  # different chromosomes AND interactions on same chromosome outside L
-  transCounts = bgCounts[trans_conds,]
-  transCounts <- as.data.table(transCounts)
-  #     GeneID        Bin Count BinChr BinCentre GeneChr  GeneLeft GeneRight
-  # 2:   C2cd5 chr6_28529    3   chr6 142642500    chr6 142952500 143047500
-  # 3:    Dbnl chr8_13600    1   chr8  67997500   chr11   5737500   5752500
-  # 4: Map3k20 chr2_14437    7   chr2  72182500    chr2  72112500  72277500
-  
-  # get total number of RNAs
-  totalTransRNAs = length(unique(transCounts$Symbol))
-  # > totalTransRNAs
-  # [1] 30338
-  
-  # get number of genes interacting per bin
-  rnasPerBin = transCounts[,.(TotalTransRNAsPerBin = length(unique(Symbol)), TotalZerosPerBin = totalTransRNAs-length(unique(Symbol))), by = 'Bin']
-  # > head(rnasPerBin)
-  #                 Bin TotalTransRNAsPerBin TotalZerosPerBin
-  #      1:  chr8_13600         23       30315
-  #      2:  chr18_7965         20       30318
-  #      3: chr14_11104         34       30304
-  
-  # add total zeros to trans interaction counts
-  transCounts$TotalZerosPerBin = rnasPerBin$TotalZerosPerBin[match(transCounts$Bin, rnasPerBin$Bin)]
-  
-  transRNAtotals = transCounts[,.(TotalTransReadsPerRNA = sum(ReadCount)), by = 'Symbol']
-  # > head(transRNAtotals)
-  #      Symbol TotalTransReadsPerRNA
-  # 1:     Dbnl       405
-  # 2:     Rtn4      3648
-  # 3:    Ikbkb      1281
-  
-  
-  transCounts$TotalTransCount = transRNAtotals$TotalTransReadsPerRNA[match(transCounts$Symbol, transRNAtotals$Symbol)]
-  
-  transCounts$FreqNormInTrans = transCounts$ReadCount/transCounts$TotalTransCount
-  
-  transCounts  <- as.data.table(transCounts)
-  
-  transBinMeans = transCounts[,.(IntFreqByBin = mean(c(FreqNormInTrans, rep(0,unique(TotalZerosPerBin))))), by = 'Bin']
-  # > head(transBinMeans)
-  #            Bin     IntFreqByBin
-  # 1:  chr8_13600 4.197029e-06
-  # 2:  chr18_7965 7.059736e-07
-  # 3: chr14_11104 7.844734e-06
-  
-  
-  
-  return(list(
-    "transCounts"=transCounts,
-    "transBinMeans"=transBinMeans
-  ))
-}
-
-getTransCountsTW <- function(counts, cisWindow, geneData) {
+getTransCounts <- function(counts, cisWindow, geneData) {
   
   counts[,c('GeneChr', 'GeneLeft', 'GeneRight')] = geneData[match(counts$Symbol, geneData$Symbol),c('seqnames', 'GeneLeftSnapped', 'GeneRightSnapped')] # add gene information to frequencies
   
@@ -661,7 +331,7 @@ getTransCountsTW <- function(counts, cisWindow, geneData) {
   ))
 }
 
-combinedDataTW = function(cisCounts, transCounts, cisBackground, transBackground){
+combineData = function(cisCounts, transCounts, cisBackground, transBackground){
   
   cisMetadata = cisCounts %>% 
     dplyr::select(Symbol, Bin, BinChr, BinCentre, GeneChr, GeneLeft, GeneRight, ReadCount, WindowReadCount, ExpInteractionFrequencyWindow, ExpInteractionCountWindow) %>%
@@ -703,32 +373,8 @@ combinedDataTW = function(cisCounts, transCounts, cisBackground, transBackground
 }
 
 
-getCountsAndFreqs  <- function(counts, binAnnotation, geneData) {
-  # get each gene ID and respective counts for background building 
-  message("Getting background counts ...")
-  bgCounts = counts[counts$Symbol %in% unique(counts$Symbol),] 
-  bgCounts[,c('GeneChr', 'GeneLeft', 'GeneRight')] = geneData[match(bgCounts$Symbol, geneData$Symbol),c('seqnames', 'GeneLeftSnapped', 'GeneRightSnapped')] # add gene information to frequencies
-  # > head(bgCounts)
-  #     Symbol        Bin ReadCount BinChr BinCentre GeneChr  GeneLeft GeneRight
-  # 2:   C2cd5 chr6_28529    3   chr6 142642500    chr6 142952500 143047500
-  # 3:    Dbnl chr8_13600    1   chr8  67997500   chr11   5737500   5752500
-  # 4: Map3k20 chr2_14437    7   chr2  72182500    chr2  72112500  72277500
-  message("Getting count/frequency data in cis ...")
-  cisData <- getCisCounts(bgCounts = bgCounts, binAnnotation = binAnnotation, geneData = geneData)
-  
-  
-  message("Getting count/frequency data in trans ...")
-  transData <- getTransCounts(bgCounts)
-  
-  return(list(
-    "cisDistanceCounts"=cisData$cisDistanceCounts,
-    "cisCounts"=cisData$cisCounts,
-    "transCounts"=transData$transCounts,
-    "transBinMeans"=transData$transBinMeans
-  ))
-}
 
-getCountsAndFreqsTW  <- function(counts, binAnnotation, geneData, cisWindow) {
+getCountsAndFreqs  <- function(counts, binAnnotation, geneData, cisWindow) {
   
   # get each gene ID and respective counts for background building 
   
@@ -738,11 +384,11 @@ getCountsAndFreqsTW  <- function(counts, binAnnotation, geneData, cisWindow) {
   
   message("Getting count/frequency data in cis ...")
   
-  cisData <- getCisCountsTW(counts = counts, binAnnotation = binAnnotation, geneData = geneData, window = cisWindow)
+  cisData <- getCisCounts(counts = counts, binAnnotation = binAnnotation, geneData = geneData, window = cisWindow)
   
   message("Getting count/frequency data in trans ...")
   
-  transData <- getTransCountsTW(counts = counts, geneData = geneData, cisWindow = cisWindow)
+  transData <- getTransCounts(counts = counts, geneData = geneData, cisWindow = cisWindow)
   
   return(list(
     "cisDistanceCounts"=cisData$cisDistanceCounts,
@@ -1038,19 +684,19 @@ experimentName = arg_vector$name
 
 # Run RADIAnT
 
-inputDataTW = getInputDataTW(countsFile = countFile, 
+inputData = getInputData(countsFile = countFile, 
                              binAnnotationFile = binAnnotationFile, 
                              gtfFile = gtfFile)
 
-countsAndFreqsTW = getCountsAndFreqsTW(counts = inputDataTW$counts, 
-                                       binAnnotation = inputDataTW$binAnnotation, 
-                                       geneData = inputDataTW$geneData, 
+countsAndFreqs = getCountsAndFreqs(counts = inputData$counts, 
+                                       binAnnotation = inputData$binAnnotation, 
+                                       geneData = inputData$geneData, 
                                        cisWindow = myL)
 
-combinedData = combinedDataTW(cisCounts = countsAndFreqsTW$cisCounts, 
-                              transCounts = countsAndFreqsTW$transCounts, 
-                              cisBackground = countsAndFreqsTW$cisDistanceCounts, 
-                              transBackground = countsAndFreqsTW$transBinMeans)
+combinedData = combineData(cisCounts = countsAndFreqs$cisCounts, 
+                              transCounts = countsAndFreqs$transCounts, 
+                              cisBackground = countsAndFreqs$cisDistanceCounts, 
+                              transBackground = countsAndFreqs$transBinMeans)
 
 testableData = combinedData[combinedData$ReadCount >= count_thresh,]
 
@@ -1070,6 +716,6 @@ combinedData$Padj[is.na(combinedData$Padj)] = 1
 
 # Write output
 
-combinedData <- combinedData %>% dplyr::rename(InteractionID = JoinColumn)
+combinedData <- combinedData %>% dplyr::rename(InteractionID = JoinColumn) %>% dplyr::select(-OriginalMethod)
 
 data.table::fwrite(x = combinedData, file = paste0(outDir, experimentName, 'RADIAnT_results.txt'), quote = F, sep = '\t', eol = '\n', row.names = F, col.names = T)
