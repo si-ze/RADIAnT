@@ -165,13 +165,15 @@ rule build_star_index:
 # Decompress FASTQs
 rule gunzip_dna:
     input:
-        dna_gz = fq_dir + "{sample}" + config["dna_fastq_suffix"] + ".gz"
+        dna_gz = fq_dir + "{sample}" + (config["dna_fastq_suffix"] if config["dna_fastq_suffix"].endswith(".gz") else config["dna_fastq_suffix"] + ".gz")
     threads:
         config["threads"]
     output:
-        dna_fastq = temporary(fq_dir + "{sample}" + config["dna_fastq_suffix"])
+        dna_fastq = temporary(fq_dir + "{sample}" + (config["dna_fastq_suffix"][:-3] if config["dna_fastq_suffix"].endswith(".gz") else config["dna_fastq_suffix"]))
     run:
         shell("pigz -k -d -p {threads} {input.dna_gz}")
+
+
 
 # DNA alignment
 
@@ -1213,11 +1215,11 @@ else:
 
     rule gunzip_rna:
         input:
-            rna_gz = fq_dir + "{sample}" + config["rna_fastq_suffix"] + ".gz"
+            rna_gz = fq_dir + "{sample}" + (config["rna_fastq_suffix"] if config["rna_fastq_suffix"].endswith(".gz") else config["rna_fastq_suffix"] + ".gz")
         threads:
             config["threads"]
         output:
-            rna_fastq = temporary(fq_dir + "{sample}" + config["rna_fastq_suffix"])
+            rna_fastq = temporary(fq_dir + "{sample}" + (config["rna_fastq_suffix"][:-3] if config["rna_fastq_suffix"].endswith(".gz") else config["rna_fastq_suffix"]))
         run:
             shell("pigz -k -d -p {threads} {input.rna_gz}")
     
