@@ -8,22 +8,28 @@ sample_base: # Common prefix of all fastq files with reads belonging to the expe
 - GSM2396700_
 # Specify the suffixes of the DNA and RNA reads. DO NOT include .gz even if the reads are compressed. 
 # If for example your reads are named my_run.DNA.fastq and my_run.RNA.fastq, set sample_base: my_run., dna_fastq_suffix: DNA.fastq, rna_fastq_suffix: RNA.fastq
-dna_fastq_suffix: DNA.fastq.gz # should end in .fastq, not .gz, even if file is compressed
-rna_fastq_suffix: RNA.fastq.gz # should end in .fastq, not .gz, even if file is compressed
+dna_fastq_suffix: DNA.fastq # should end in .fastq, not .gz, even if file is compressed
+rna_fastq_suffix: RNA.fastq # should end in .fastq, not .gz, even if file is compressed
 
-output_directory: /path/to/RADIAnT/results/GRID/ # Specify location results should be written to
+
+output_directory: /path/to/RADIAnT/results/RADICL/ # Specify location results should be written to
 
 species: mouse # currently supported: mouse and human
-gtf: /path/to/RADIAnT/resources/mouse/gencode.vM29.annotation.gtf.gz
+genome_fasta: /path/to/RADIAnT/resources/mouse/GRCm39.genome.fa.gz # optional, can be omitted if STAR index already built
+# if you need a genome fasta file, please download from https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M30/GRCm39.genome.fa.gz
 genome_bins: /path/to/RADIAnT/resources/mouse/mm39.05kb.bed.gz
 genes: /path/to/RADIAnT/resources/mouse/mm39.ncbiRefSeq.genes.bed.gz
+gtf: /path/to/RADIAnT/resources/mouse/gencode.vM29.annotation.gtf.gz
 blacklist: /path/to/RADIAnT/resources/mouse/mm39.excluderanges.bed.gz
 rrna_fasta:  /path/to/RADIAnT/resources/mouse/arb-silva.de_2024-03-25_id1313737_tax_silva_trunc.fasta.gz
-
 threads: 8
 star_binary: # provide the path to the STAR binary, e.g. /home/user/STAR-2.7.9a/source/STAR
-star_index: # provide the path to the STAR index you constructed, e.g. /home/user/Annotation/STARindex
+star_index: # provide the path to the STAR index you constructed, otherwise path to a directory the index should be written to 
 bedtools_binary: # provide the path to the bedtools binary, e.g. /usr/bin/bedtools
 samtools_binary: # provide the path to the samtools binary, /usr/bin/samtools
 bamCoverage_binary: # provide the path to the bamCoverage binary, /home/user/.local/bin/bamCoverage
 bbduk_script: # provide the path to the bbduk script, e.g. /home/user/software/bbmap/bbduk.sh
+
+
+
+

@@ -17,7 +17,7 @@
 
 
 # script directory
-workflow_dir = config['workflow_directory']
+workflow_dir = config["workflow_directory"] if config["workflow_directory"].endswith("/") else config["workflow_directory"] + "/"
 
 
 
@@ -26,8 +26,8 @@ workflow_dir = config['workflow_directory']
 method = config["method"][0]
 
 # Directory holding the fastq files of the experiment to be analysed
+fq_dir = config["fastq_directory"] if config["fastq_directory"].endswith("/") else config["fastq_directory"] + "/"
 
-fq_dir = config['fastq_directory']
 
 # Samples basename
 
@@ -35,10 +35,15 @@ samples = config["sample_base"]
 
 print(samples)
 
+# Mapping 
+
+star_index = config["star_index"] if config["star_index"].endswith("/") else config["star_index"] + "/"
+gtf = config["gtf"]
+genome = config["genome_fasta"]
 
 # output directory
 
-outdir_base = config["output_directory"]
+outdir_base = config["output_directory"] if config["output_directory"].endswith("/") else config["output_directory"] + "/"
 
 outdir_bam = outdir_base + "bam/"
 
@@ -89,7 +94,8 @@ if method == 'Red-C':
             expand(outdir_logs + "{sample}sankey.svg", sample=config["sample_base"]), 
             expand(outdir_logs + "{sample}sankey.png", sample=config["sample_base"]), 
             expand(outdir_logs + "{sample}read_stats.txt", sample=config["sample_base"]),
-            expand(outdir_interactions + "{sample}genes.number_of_interactions.txt", sample=config["sample_base"])
+            expand(outdir_interactions + "{sample}genes.number_of_interactions.txt", sample=config["sample_base"]),
+            star_index + "Log.out"
 
 else:
     rule all:
@@ -115,9 +121,48 @@ else:
             expand(outdir_logs + "{sample}sankey.svg", sample=config["sample_base"]), 
             expand(outdir_logs + "{sample}sankey.png", sample=config["sample_base"]), 
             expand(outdir_logs + "{sample}read_stats.txt", sample=config["sample_base"]),
-            expand(outdir_interactions + "{sample}genes.number_of_interactions.txt", sample=config["sample_base"])
-# Decompress FASTQs
+            expand(outdir_interactions + "{sample}genes.number_of_interactions.txt", sample=config["sample_base"]),
+            star_index + "Log.out"
 
+
+# If no STAR index provided, decompress provided genome FASTA to build index
+rule gunzip_genome_fasta:
+    input: 
+        genome_fasta = config["genome_fasta"] if config["genome_fasta"].endswith(".gz") else config["genome_fasta"] + ".gz"
+    output: 
+        decompressed_fasta = temporary(config["genome_fasta"][:-3] if config["genome_fasta"].endswith(".gz") else config["genome_fasta"])
+    run: 
+        shell("pigz -k -d -p {threads} {input.genome_fasta}")
+
+# If no STAR index provided, decompress provided genome annotation to build index
+rule gunzip_gtf:
+    input: 
+        gtf = config["gtf"] if config["gtf"].endswith(".gz") else config["gtf"] + ".gz"
+    output: 
+        decompressed_gtf = temporary(config["gtf"][:-3] if config["gtf"].endswith(".gz") else config["gtf"])
+    run: 
+        shell("pigz -k -d -p {threads} {input.gtf}")
+
+# If no STAR index provided, build index
+rule build_star_index: 
+    input:
+        gtf = re.sub(r"\.gz$", "", config["gtf"]),
+        genome_fasta = re.sub(r"\.gz$", "", config["genome_fasta"])
+    params:
+        star_binary = config["star_binary"],
+        star_index = config["star_index"]
+    output: 
+        star_log = star_index + "Log.out"
+    run:
+        shell("{params.star_binary} \
+        --runMode genomeGenerate \
+        --genomeDir {params.star_index} \
+        --genomeFastaFiles {input.genome_fasta} \
+        --sjdbGTFfile {input.gtf} \
+        --sjdbOverhang 50")
+
+
+# Decompress FASTQs
 rule gunzip_dna:
     input:
         dna_gz = fq_dir + "{sample}" + config["dna_fastq_suffix"] + ".gz"
@@ -130,14 +175,17 @@ rule gunzip_dna:
 
 # DNA alignment
 
+
 rule align_dna:
     input:
-        dna_fastq = fq_dir + "{sample}"+config["dna_fastq_suffix"]
+        dna_fastq = fq_dir + "{sample}"+config["dna_fastq_suffix"],
+        genome_parameters = star_index + "Log.out"
     threads:
         config["threads"]
     params:
+        # star_index = config["star_index"] if os.path.exists(config["star_index"]) else outdir_base + "resources/" + config["species"] + "/star_index",
+        star_index = config["star_index"], 
         star_binary = config["star_binary"],
-        star_index = config["star_index"],
         base_name = outdir_bam + "{sample}" + 'DNA_'
     output:
         aligned_dna = outdir_bam + "{sample}DNA_Aligned.out.bam"
@@ -155,6 +203,33 @@ rule align_dna:
                --outFilterScoreMinOverLread 0 \
                --outFilterMatchNminOverLread 0 \
                --outFilterMatchNmin 0")
+
+
+# rule align_dna:
+#     input:
+#         dna_fastq = fq_dir + "{sample}"+config["dna_fastq_suffix"]
+#     threads:
+#         config["threads"]
+#     params:
+#         star_binary = config["star_binary"],
+#         star_index = config["star_index"],
+#         base_name = outdir_bam + "{sample}" + 'DNA_'
+#     output:
+#         aligned_dna = outdir_bam + "{sample}DNA_Aligned.out.bam"
+#     run:
+#         shell("{params.star_binary} \
+#                --runThreadN {threads} \
+#                --genomeDir {params.star_index} \
+#                --genomeLoad NoSharedMemory \
+#                --limitBAMsortRAM 30000000000 \
+#                --readFilesIn {input.dna_fastq} \
+#                --outFileNamePrefix {params.base_name} \
+#                --outSAMtype BAM Unsorted \
+#                --alignIntronMax 1 \
+#                --alignMatesGapMax 1 \
+#                --outFilterScoreMinOverLread 0 \
+#                --outFilterMatchNminOverLread 0 \
+#                --outFilterMatchNmin 0")
 
 # Remove blacklisted regions from DNA
 
@@ -1166,12 +1241,14 @@ else:
 
     rule align_rna:
         input:
-            rna_clean = outdir_fastq + "{sample}RNA_depleted.fastq"
+            rna_clean = outdir_fastq + "{sample}RNA_depleted.fastq",
+            genome_parameters = star_index + "Log.out"
         threads:
             config["threads"]
         params:
+            # star_index = config["star_index"] if os.path.exists(config["star_index"]) else outdir_base + "resources/" + config["species"] + "/star_index",
+            star_index = config["star_index"], 
             star_binary = config["star_binary"],
-            star_index = config["star_index"],
             base_name = outdir_bam + "{sample}"+'RNA_'
         output:
             aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bam",
@@ -1191,7 +1268,43 @@ else:
                 --outFilterMatchNminOverLread 0 \
                 --outFilterMatchNmin 0")
 
-    # Remove blacklisted regions from DNA
+    # rule align_rna:
+    #     input:
+    #         rna_clean = outdir_fastq + "{sample}RNA_depleted.fastq"
+    #     threads:
+    #         config["threads"]
+    #     params:
+    #         star_binary = config["star_binary"],
+    #         star_index = config["star_index"],
+    #         base_name = outdir_bam + "{sample}"+'RNA_'
+    #     output:
+    #         aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bam",
+    #         rna_map_log = outdir_bam + "{sample}RNA_Log.final.out"
+    #     run:
+    #         shell("{params.star_binary} \
+    #             --runThreadN {threads} \
+    #             --genomeDir {params.star_index} \
+    #             --genomeLoad NoSharedMemory \
+    #             --limitBAMsortRAM 30000000000 \
+    #             --readFilesIn {input.rna_clean} \
+    #             --outFileNamePrefix {params.base_name} \
+    #             --outSAMtype BAM Unsorted \
+    #             --alignIntronMax 1 \
+    #             --alignMatesGapMax 1 \
+    #             --outFilterScoreMinOverLread 0 \
+    #             --outFilterMatchNminOverLread 0 \
+    #             --outFilterMatchNmin 0")
+
+
+
+
+
+
+
+
+
+
+    # Remove blacklisted regions from RNA
 
     rule no_blacklist_rna:
         input:

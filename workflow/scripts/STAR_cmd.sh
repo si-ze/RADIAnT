@@ -1,0 +1,1 @@
+STAR --runMode genomeGenerate --genomeDir STARindex --genomeFastaFiles /mnt/y/Fileserver_Datastore_NGS/Bioinformatics/Reference/Mus_musculus/mm39.fa --sjdbGTFfile /mnt/y/Fileserver_Datastore_NGS/Bioinformatics/GenomeAnnotations/Mus_musculus/gencode.vM29.annotation.gtf --sjdbOverhang 50 --outFileNamePrefix mm39.STARindex

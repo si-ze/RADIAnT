@@ -15,15 +15,16 @@ rna_2_fastq_suffix: RNA3.fastq # should end in .fastq, not .gz, even if file is 
 output_directory: /path/to/RADIAnT/results/RedC/ # Specify location results should be written to
 
 species: human # currently supported: mouse and human
-gtf: /path/to/RADIAnT/resources/human/gencode.v45.annotation.gtf
+genome_fasta: /path/to/RADIAnT/resources//human/hg38.fa.gz # optional, can be omitted if STAR index already built
 genome_bins: /path/to/RADIAnT/resources/human/hg38_genome_5kb_bins_named.bed
 genes: /path/to/RADIAnT/resources/human/gencode.v45.annotation.genes.bed
+gtf: /path/to/RADIAnT/resources/human/gencode.v45.annotation.gtf
 blacklist: /path/to/RADIAnT/resources/human/hg38-blacklist.v2.bed
 rrna_fasta:  /path/to/RADIAnT/resources/human/Silva_rRNA_Homo_sapiens.fasta  
 
 threads: 8
 star_binary: # provide the path to the STAR binary, e.g. /home/user/STAR-2.7.9a/source/STAR
-star_index: # provide the path to the STAR index you constructed, e.g. /home/user/Annotation/STARindex
+star_index: # provide the path to the STAR index you constructed, otherwise path to a directory the index should be written to 
 bedtools_binary: # provide the path to the bedtools binary, e.g. /usr/bin/bedtools
 samtools_binary: # provide the path to the samtools binary, /usr/bin/samtools
 bamCoverage_binary: # provide the path to the bamCoverage binary, /home/user/.local/bin/bamCoverage

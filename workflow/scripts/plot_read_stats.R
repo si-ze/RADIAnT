@@ -119,10 +119,12 @@ stats_long$label <- sapply(stats_long$node, function(node) {
   }
 })
 
+
+tryCatch({
 stats_long <- stats_long  %>% 
   filter(!is.na(node))
 
-ggplot(stats_long, aes(x = x,
+sankey_plot <- ggplot(stats_long, aes(x = x,
                next_x = next_x,
                node = node,
                next_node = next_node,
@@ -137,8 +139,14 @@ ggplot(stats_long, aes(x = x,
        plot.title = element_text(hjust = .5), 
        axis.text.x = element_text(size=14))
 
-ggsave(filename = svg_out,  device=svg(), width = 12, height = 5)
-ggsave(filename = png_out, width = 12, height = 5, units = "in", dpi = 300)
+ggsave(filename = svg_out, plot=sankey_plot, device=svg, width = 12, height = 5)
+ggsave(filename = png_out, plot=sankey_plot, width = 12, height = 5, units = "in", dpi = 300)
+}, error = function(e) {
+  # Code to handle errors goes here
+  print(paste("An error occurred:", e))
+})
 
 
 read_counts %>% select(type, count) %>% write.table(file=txt_out, quote = FALSE, col.names = TRUE, row.names = FALSE, sep="\t")
+
+
