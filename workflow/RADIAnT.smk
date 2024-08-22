@@ -152,7 +152,8 @@ rule build_star_index:
         star_binary = config["star_binary"],
         star_index = config["star_index"]
     output: 
-        star_log = star_index + "Log.out"
+        # star_log = star_index + "Log.out"
+        star_done = star_index + "index.done"
     run:
         shell("{params.star_binary} \
         --runMode genomeGenerate \
@@ -160,6 +161,7 @@ rule build_star_index:
         --genomeFastaFiles {input.genome_fasta} \
         --sjdbGTFfile {input.gtf} \
         --sjdbOverhang 50")
+        shell("touch {output.star_done}")
 
 
 # Decompress FASTQs
