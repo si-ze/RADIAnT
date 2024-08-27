@@ -280,6 +280,13 @@ RADIAnT/results/RADICL/
 -------------------------------------------------------------------------------
 
 
+## Common issues
+
+### Error: FATAL INPUT ERROR: unrecognized parameter name "genomeType" in input "genomeParameters.txt"
+
+Please make sure that the mapping is run with a STAR version which is **equal to or newer than** the one used to generate the index. You can check your STAR version by running ```/path/to/STAR --version```. You can check the STAR version used to generate the index by checking the file at ```/path/to/STAR_index/Log.out``` (first line). 
+
+
 
 
  
