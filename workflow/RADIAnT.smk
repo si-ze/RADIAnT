@@ -38,8 +38,6 @@ print(samples)
 # Mapping 
 
 star_index = config["star_index"] if config["star_index"].endswith("/") else config["star_index"] + "/"
-gtf = config["gtf"]
-genome = config["genome_fasta"]
 
 # output directory
 
@@ -153,7 +151,6 @@ rule build_star_index:
         star_index = config["star_index"]
     output: 
         star_log = star_index + "Log.out"
-        # star_done = star_index + "index.done"
     run:
         shell("{params.star_binary} \
         --runMode genomeGenerate \
@@ -161,7 +158,6 @@ rule build_star_index:
         --genomeFastaFiles {input.genome_fasta} \
         --sjdbGTFfile {input.gtf} \
         --sjdbOverhang 50")
-        # shell("touch {output.star_done}")
 
 
 # Decompress FASTQs
@@ -1246,7 +1242,7 @@ else:
     rule align_rna:
         input:
             rna_clean = outdir_fastq + "{sample}RNA_depleted.fastq",
-            genome_parameters = star_index + "Log.out"
+            genome_parameters = config["star_index"] + "Log.out"
         threads:
             config["threads"]
         params:

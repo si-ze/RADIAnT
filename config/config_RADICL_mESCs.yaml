@@ -14,7 +14,7 @@ rna_fastq_suffix: RNA.fastq
 output_directory: /path/to/RADIAnT/results/RADICL/ # Specify location results should be written to
 
 species: mouse # currently supported: mouse and human
-genome_fasta: /path/to/RADIAnT/resources/mouse/GRCm39.genome.fa.gz # optional, can be omitted if STAR index already built
+genome_fasta: # either provide a path to your genome fasta or, if no genome fasta is needed because STAR index is already built, put None
 # if you need a genome fasta file, please download from https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M30/GRCm39.genome.fa.gz
 genome_bins: /path/to/RADIAnT/resources/mouse/mm39.05kb.bed.gz
 genes: /path/to/RADIAnT/resources/mouse/mm39.ncbiRefSeq.genes.bed.gz
