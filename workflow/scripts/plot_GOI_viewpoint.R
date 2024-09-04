@@ -50,9 +50,9 @@ parser = add_argument(parser, '--start', type = 'integer', help = 'Start coordin
 
 parser = add_argument(parser, '--end', type = 'integer', help = 'End coordinate of region to be plotted')
 
-parser = add_argument(parser, '--outdir', type = 'character', help = 'Optional. Desired output directory', default='.')
+parser = add_argument(parser, '--outdir', type = 'character', help = 'Optional argument. Desired output directory', default='.')
 
-parser = add_argument(parser, '--outformat', type = 'character', help = 'Optional. Desired output file format. Supported: svg / png / both. Default (also if omitted): both', default='both')
+parser = add_argument(parser, '--outformat', type = 'character', help = 'Optional argument. Desired output file format. Supported: svg / png / both. Default (also if omitted): both', default='both')
 
 arg_vector = parse_args(parser)
 
