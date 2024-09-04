@@ -280,6 +280,46 @@ RADIAnT/results/RADICL/
 -------------------------------------------------------------------------------
 
 
+
+
+
+## Individual GOI plots
+
+While the above data gets generated automaticall with each RADIAnT run, two types of plots are supported which have to be customised by the user and produced running standalone R scripts. 
+
+### Viewpoint plot: GOI-chromatin interaction at a given region of a genome
+
+The viewpoint plot gives insight on significant interactions of a gene of interest (GOI) with a specific region of the genome. This is an example plot for the interactions of the lncRNA _Malat1_ with the chromatin around its own gene locus in mouse embryonic stem cells: 
+
+![Viewpoint Malat1 chr19_3500000_1 1e+07](https://github.com/user-attachments/assets/5fc7d60e-0dae-4446-8765-2f03ced27af4)
+
+Explanation: 
+* The experiment-specific **background** is plotted in **grey** . It reflects the expected interaction frequency of the GOI with each position in the genome (either defined by bin or by distance to the gene locus) as calculated from the experiment, and scaled to fit the abundance of the GOI. The gap in the grey background is located at the gene body as intragenic interactions are excluded to filter out transcriptional clouding
+* The **red** frequency plot shows the actual **observed interaction counts** of the GOI with each position in the genome.
+* Significant interactions are highlighted by grey dots. The size of the dot indicates the "significance" of the interaction.
+
+To create a viewpoint plot, run the R script provided with RADIAnT ```plot_GOI_viewpoint.r``` in the following manner:
+
+```
+Rscript /path/to/RADIAnT/workflow/scripts/plot_GOI_viewpoint.r --results /path/to/my_RADIAnT_results.txt --goi myGOI --binAnnotation /path/to/RADIAnT/resources/myorganism/my_bins_named.bed.gz --chr chromosomeName --start coordinate --end coordinate 
+```
+
+The script takes the following parameters: 
+
+
+| Parameter       | Description                                                                                            |
+|-----------------|--------------------------------------------------------------------------------------------------------|
+| --results       | Absolute path to RADIAnT results file (*_RADIAnT_results.txt                                           |
+| --goi           | Gene symbol of gene of interest                                                                        |
+| --genome        | Genome version (currently supported: hg38 and mm39)                                                    |
+| --binAnnotation | Absolute path to the bin annotation file. Also provided in ```resources/```.                           |
+| --chr           | Chromosome name of the region of the genome of which interactions with the GOI should be plotted for.  |
+| --start         | Start coordinate of the region to be plotted.                                                          |
+| --end           | End coordinate of the region to be plotted.                                                            |
+| --outdir        | Optional parameter. Desired output directory. Default is the directory plot_GOI_viewpoint.r is run in. |
+| --outformat     | Optional parameter. Desired output format. Supported: svg / png / both. Default: both.                 |
+
+
 ## Common issues
 
 ### Error: FATAL INPUT ERROR: unrecognized parameter name "genomeType" in input "genomeParameters.txt"
