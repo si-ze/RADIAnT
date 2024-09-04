@@ -289,7 +289,7 @@ While the above data gets generated automaticall with each RADIAnT run, two type
 
 ### Viewpoint plot: GOI-chromatin interaction at a given region of a genome
 
-The viewpoint plot gives insight on significant interactions of a gene of interest (GOI) with a specific region of the genome. This is an example plot for the interactions of the lncRNA _Malat1_ with the chromatin around its own gene locus in mouse embryonic stem cells: 
+The viewpoint plot provides insight into significant interactions of a gene of interest (GOI) with a specific region of the genome. This is an example plot for the interactions of the lncRNA _Malat1_ with the chromatin around its own gene locus in mouse embryonic stem cells: 
 
 ![Viewpoint Malat1 chr19_3500000_1 1e+07](https://github.com/user-attachments/assets/5fc7d60e-0dae-4446-8765-2f03ced27af4)
 
@@ -318,6 +318,13 @@ The script takes the following parameters:
 | --end           | End coordinate of the region to be plotted.                                                            |
 | --outdir        | Optional parameter. Desired output directory. Default is the directory plot_GOI_viewpoint.r is run in. |
 | --outformat     | Optional parameter. Desired output format. Supported: svg / png / both. Default: both.                 |
+
+
+### Chromosome plot: visualise how a GOI interacts with different chromosomes
+
+This plot provides insight into interactions sites of a gene of interest (GOI) across the whole genome. The chromosomes are visualised in a circular manner. This is an example plot for significant interactions of the lncRNA _NEAT1_ across chromosomes of the human genome (HUVEC data set):
+
+![NEAT1 hg38 chromosome_plot](https://github.com/user-attachments/assets/f6c60c5d-79d9-4d4f-82a2-3b0211edc8fe)
 
 
 ## Common issues
