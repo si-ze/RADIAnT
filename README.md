@@ -285,7 +285,7 @@ RADIAnT/results/RADICL/
 
 ## Individual GOI plots
 
-While the above data gets generated automaticall with each RADIAnT run, two types of plots are supported which have to be customised by the user and produced running standalone R scripts. 
+While the above data gets generated automatically with each RADIAnT run, two types of plots are supported which have to be customised by the user and produced running standalone R scripts. 
 
 ### Viewpoint plot: GOI-chromatin interaction at a given region of a genome
 
@@ -316,8 +316,8 @@ The script takes the following parameters:
 | --chr           | Chromosome name of the region of the genome of which interactions with the GOI should be plotted for.  |
 | --start         | Start coordinate of the region to be plotted.                                                          |
 | --end           | End coordinate of the region to be plotted.                                                            |
-| --outdir        | Optional parameter. Desired output directory. Default is the directory plot_GOI_viewpoint.r is run in. |
-| --outformat     | Optional parameter. Desired output format. Supported: svg / png / both. Default: both.                 |
+| --outdir        | Optional argument. Desired output directory. Default is the directory plot_GOI_viewpoint.r is run in. |
+| --outformat     | Optional argument. Desired output format. Supported: svg / png / both. Default: both.                 |
 
 
 ### Chromosome plot: visualise how a GOI interacts with different chromosomes
@@ -325,6 +325,20 @@ The script takes the following parameters:
 This plot provides insight into interactions sites of a gene of interest (GOI) across the whole genome. The chromosomes are visualised in a circular manner. This is an example plot for significant interactions of the lncRNA _NEAT1_ across chromosomes of the human genome (HUVEC data set):
 
 ![NEAT1 hg38 chromosome_plot](https://github.com/user-attachments/assets/f6c60c5d-79d9-4d4f-82a2-3b0211edc8fe)
+
+The script takes the following parameters: 
+
+| Parameter   | Description                                                                                                                                     |
+|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| --results   | Absolute path to RADIAnT results file (*_RADIAnT_results.txt                                                                                    |
+| --goi       | Gene symbol of gene of interest                                                                                                                 |
+| --genome    | Genome version (currently supported: hg38 and mm39)                                                                                             |
+| --cytoband  | Absolute path to cytoband file. Also provided in ```resources/````.                                                                             |
+| --spacer    | Optional argument. Spacer size. Default: 20000000.                                                                                              |
+| --alpha     | Optional argument. P adjusted threshold. <br>Only interactions with a P adjusted lower than the supplied value are displayed. <br>Default: 0.05 |
+| --display   | Optional argument. Cutoff: how many significant interactions to display? Defualt: 100                                                           |
+| --outdir    | Optional argument. Desired output directory. Default is the directory plot_GOI_viewpoint.r is run in.                                          |
+| --outformat | Optional argument. Desired output format. Supported: svg / png / both. Default: both.                                                          |
 
 
 ## Common issues
