@@ -298,7 +298,7 @@ Explanation:
 * The **red** frequency plot shows the actual **observed interaction counts** of the GOI with each position in the genome.
 * Significant interactions are highlighted by grey dots. The size of the dot indicates the "significance" of the interaction.
 
-To create a viewpoint plot, run the R script provided with RADIAnT ```plot_GOI_viewpoint.r``` in the following manner:
+To create a viewpoint plot, run the R script provided with RADIAnT, ```plot_GOI_viewpoint.R```, in the following manner:
 
 ```
 Rscript /path/to/RADIAnT/workflow/scripts/plot_GOI_viewpoint.r --results /path/to/my_RADIAnT_results.txt --goi myGOI --binAnnotation /path/to/RADIAnT/resources/myorganism/my_bins_named.bed.gz --chr chromosomeName --start coordinate --end coordinate 
@@ -326,8 +326,10 @@ This plot provides insight into interactions sites of a gene of interest (GOI) a
 
 ![NEAT1 hg38 chromosome_plot](https://github.com/user-attachments/assets/f6c60c5d-79d9-4d4f-82a2-3b0211edc8fe)
 
+To create a viewpoint plot, run the R script provided with RADIAnT, ```plot_GOI_chromosome_interactions.R```, in the following manner:
+
 ```
-Rscript workflow/scripts/plot_GOI_chromosome_interactions.r path/to/my_RADIAnT_results.txt --goi myGOI --genome mygenome --cytoband resources/myorganism/my.cytoBand.txt.gz
+Rscript workflow/scripts/plot_GOI_chromosome_interactions.R path/to/my_RADIAnT_results.txt --goi myGOI --genome mygenome --cytoband resources/myorganism/my.cytoBand.txt.gz
 ```
 
 The script takes the following parameters: 
