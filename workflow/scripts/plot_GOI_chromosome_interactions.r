@@ -24,15 +24,17 @@ parser = add_argument(parser, '--genome', type = 'character', help = 'Genome ver
 
 parser = add_argument(parser, '--cytoband', type = 'character', help = 'Absolute path to cytoband file. Also provided in resources/ directory together with RADIAnT')
 
-parser = add_argument(parser, '--outdir', type = 'character', help = 'Desired output directory', default='.')
+parser = add_argument(parser, '--outdir', type = 'character', help = 'Optional argument. Desired output directory', default='.')
 
-parser = add_argument(parser, '--outformat', type = 'character', help = 'Desired output file format. Supported: svg / png / both. Default (also if omitted): both', default='both')
+parser = add_argument(parser, '--outformat', type = 'character', help = 'Optional argument. Desired output file format. Supported: svg / png / both. Default (also if omitted): both', default='both')
 
-parser = add_argument(parser, '--spacer', type = 'integer', help = 'Spacer size. Default: 20000000', default=20000000)
+parser = add_argument(parser, '--spacer', type = 'integer', help = 'Optional argument. Spacer size. Default: 20000000', default=20000000)
+
+parser = add_argument(parser, '--alpha', type = 'double', help = 'Optional argument. P adjusted threshold. Only interactions with a P adj. lower than the supplied value are displayed. Default: 0.05', default=0.05)
+
+parser = add_argument(parser, '--display', type = 'integer', help = 'Optional argument. Cutoff: how many significant interactions to display? Default: 100', default=100)
 
 arg_vector = parse_args(parser)
-
-
 
 res = data.table::fread(arg_vector$results) %>% as.data.frame()
 goi = arg_vector$goi
@@ -42,7 +44,8 @@ cytoband_file = arg_vector$cytoband
 outdir = arg_vector$outdir
 output_format = arg_vector$outformat
 spacer_size = arg_vector$spacer
-
+Padj_threshold = arg_vector$alpha
+max_interactions = arg_vector$display
 
 # args = commandArgs(trailingOnly = TRUE)
 # res=data.table::fread(args[1]) # %>% as.data.frame()
@@ -145,7 +148,7 @@ cytoband$Radians_band_end = 2 * pi * cytoband$Degrees_band_end / 360
 
 
 
-interactions = res[res$Symbol == goi & res$BinChr != res$GeneChr & res$Padj < 0.05,]
+interactions = res[res$Symbol == goi & res$BinChr != res$GeneChr & res$Padj < Padj_threshold,]
 
 arc_df = data.frame(
   Start_chr = interactions$GeneChr,
@@ -191,7 +194,9 @@ arc_df$Y = 0.55 * sin(arc_df$Radians_start)
 
 arc_df$Yend = 0.55 * sin(arc_df$Radians_end)
 
-arc_df = arc_df[arc_df$LogPadj > 10,]
+arc_df = arc_df %>% arrange(desc(LogPadj)) %>% slice_head(n = max_interactions) 
+
+# arc_df = arc_df[arc_df$LogPadj > 10,]
 
 
 # Plot --------------------------------------------------------------------
