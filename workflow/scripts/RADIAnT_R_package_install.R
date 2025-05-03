@@ -17,3 +17,4 @@ BiocManager::install("scales")
 # ggsankey
 install.packages("devtools")
 devtools::install_github("davidsjoberg/ggsankey")
+BiocManager::install("ShortRead")
