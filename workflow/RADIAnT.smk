@@ -1,18 +1,5 @@
 # Snakemake for processing of RNA-DNA interaction data from split fastq files to Gene-Bin interaction counts
 
-# TO ADD?:
-# FASTQ deduplication? (CZID) ideally performed by the user on unsplit reads though
-# FASTQ quality trimming (trimmomatic), actually not required because STAR employs soft clipping of read ends
-# Add interaction calling Rscript from SZ (probably need a list of required R packages for user to pre-install)
-# Logs/metrics for Sankey plot and general quality overview
-# Multi-mapping handling for Red-C data
-# Blacklist regions excluded from counting/alignment for Red-C
-# Limit to only canonical chromosomes sooner in the workflow
-# Multi-mapping as a parameter in config file
-# Multi-mapping for DNA reads?
-
-# Config file
-
 #configfile: "config.yaml"
 
 
