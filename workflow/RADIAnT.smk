@@ -1,32 +1,51 @@
 # Snakemake for processing of RNA-DNA interaction data from split fastq files to Gene-Bin interaction counts
 
-#configfile: "config.yaml"
 
+#################################################################################################################################
+# Config file ===================================================================================================================
+#################################################################################################################################
 
-# script directory
+# script directory ==============================================================================================================
+
 workflow_dir = config["workflow_directory"] if config["workflow_directory"].endswith("/") else config["workflow_directory"] + "/"
 
+# resource directory ============================================================================================================
 
+resource_dir = config["resource_directory"] if config["resource_directory"].endswith("/") else config["resource_directory"] + "/"
 
-# method
+# species =======================================================================================================================
+
+species = config["species"]
+
+# genome ========================================================================================================================
+
+genome = config["genome"]
+
+# method ========================================================================================================================
 
 method = config["method"][0]
 
-# Directory holding the fastq files of the experiment to be analysed
+# Directory holding the fastq files of the experiment to be analysed ============================================================
+
 fq_dir = config["fastq_directory"] if config["fastq_directory"].endswith("/") else config["fastq_directory"] + "/"
 
-
-# Samples basename
+# Samples basename ==============================================================================================================
 
 samples = config["sample_base"]
 
 print(samples)
 
-# Mapping 
+# Bin sizes for analysis ========================================================================================================
+
+bin_sizes = config["bin_sizes"]
+
+print(bin_sizes)
+
+# Mapping  ======================================================================================================================
 
 star_index = config["star_index"] if config["star_index"].endswith("/") else config["star_index"] + "/"
 
-# output directory
+# output directories ============================================================================================================
 
 outdir_base = config["output_directory"] if config["output_directory"].endswith("/") else config["output_directory"] + "/"
 
@@ -46,16 +65,39 @@ outdir_interactions = outdir_base + "interactions/"
 
 outdir_logs = outdir_base + "logs/"
 
-# all
-rule all:
-    input:
-        expand(outdir_interactions + "{sample}RADIAnT_results.txt", sample=config["sample_base"]),
-        expand(outdir_interactions + "{sample}genes.number_of_interactions.txt", sample=config["sample_base"]),
-        expand(outdir_logs + "{sample}Sankey.svg", sample=config["sample_base"]),
-        star_index + "Log.out"
+#################################################################################################################################
+# Rules =========================================================================================================================
+#################################################################################################################################
+
+# constrain wildcards ===========================================================================================================
+
+wildcard_constraints:
+	sample = "(" + "|".join(map(str,samples)) + ")",
+	bin_size = "(" + "|".join(map(str,bin_sizes)) + ")"
+
+# all ===========================================================================================================================
+
+if method == 'Red-C':
+
+    rule all:
+        input:
+            expand(outdir_interactions + "{sample}{bin_size}_RADIAnT_results.txt", sample=samples, bin_size=bin_sizes),
+            #expand(outdir_interactions + "{sample}RADIAnT_results.txt", sample=samples),
+            #expand(outdir_logs + "{sample}sankey.svg", sample=samples), 
+            #expand(outdir_logs + "{sample}sankey.png", sample=samples), 
+            #expand(outdir_logs + "{sample}read_stats.txt", sample=samples),
+            #expand(outdir_interactions + "{sample}genes.number_of_interactions.txt", sample=samples),
+            star_index + "Log.out"
+
+else:
+    rule all:
+        input:
+            expand(outdir_interactions + "{sample}{bin_size}_RADIAnT_results.txt", sample=samples, bin_size = bin_sizes),
+            star_index + "Log.out"
 
 
-# If no STAR index provided, decompress provided genome FASTA to build index
+# If no STAR index provided, decompress provided genome FASTA to build index ====================================================
+
 rule gunzip_genome_fasta:
     input: 
         genome_fasta = config["genome_fasta"] if config["genome_fasta"].endswith(".gz") else config["genome_fasta"] + ".gz"
@@ -64,7 +106,8 @@ rule gunzip_genome_fasta:
     run: 
         shell("pigz -k -d -p {threads} {input.genome_fasta}")
 
-# If no STAR index provided, decompress provided genome annotation to build index
+# If no STAR index provided, decompress provided genome annotation to build index ===============================================
+
 rule gunzip_gtf:
     input: 
         gtf = config["gtf"] if config["gtf"].endswith(".gz") else config["gtf"] + ".gz"
@@ -73,7 +116,8 @@ rule gunzip_gtf:
     run: 
         shell("pigz -k -d -p {threads} {input.gtf}")
 
-# If no STAR index provided, build index
+# If no STAR index provided, build index ========================================================================================
+
 rule build_star_index: 
     input:
         gtf = re.sub(r"\.gz$", "", config["gtf"]),
@@ -81,18 +125,22 @@ rule build_star_index:
     params:
         star_binary = config["star_binary"],
         star_index = config["star_index"]
+    threads:
+        config["threads"]
     output: 
         star_log = star_index + "Log.out"
     run:
         shell("{params.star_binary} \
         --runMode genomeGenerate \
+	--runThreadN {threads} \
         --genomeDir {params.star_index} \
         --genomeFastaFiles {input.genome_fasta} \
         --sjdbGTFfile {input.gtf} \
         --sjdbOverhang 50")
 
 
-# Decompress FASTQs
+# Decompress FASTQs =============================================================================================================
+
 rule gunzip_dna:
     input:
         dna_gz = fq_dir + "{sample}" + (config["dna_fastq_suffix"] if config["dna_fastq_suffix"].endswith(".gz") else config["dna_fastq_suffix"] + ".gz")
@@ -103,7 +151,7 @@ rule gunzip_dna:
     run:
         shell("pigz -k -d -p {threads} {input.dna_gz}")
 
-# DNA alignment
+# DNA alignment =================================================================================================================
 
 rule align_dna:
     input:
@@ -134,7 +182,7 @@ rule align_dna:
                --outFilterMatchNminOverLread 0 \
                --outFilterMatchNmin 0")
 
-# Remove blacklisted regions from DNA
+# Remove blacklisted regions from DNA ===========================================================================================
 
 rule no_blacklist_dna:
     input:
@@ -147,7 +195,7 @@ rule no_blacklist_dna:
         shell("bedtools intersect -v -a {input.aligned_dna} -b {params.blacklist} > {output.no_blacklist_dna}")
 
 
-# extract uniquely mapping reads
+# extract uniquely mapping reads ================================================================================================
 
 rule unique_dna:
     input:
@@ -161,7 +209,7 @@ rule unique_dna:
     run:
         shell("{params.samtools_binary} view -@ {threads} -q 255 -o {output.unique_dna} {input.no_blacklist_dna}")
 
-# Collate bam (samtools collate)
+# Collate bam (samtools collate) ================================================================================================
 
 rule collate_dna:
     input:
@@ -175,7 +223,7 @@ rule collate_dna:
     run:
         shell("{params.samtools_binary} collate -@ {threads} -o {output.collated_dna} {input.unique_dna}")
 
-# Fixmate (samtool fixmate)
+# Fixmate (samtool fixmate) =====================================================================================================
 
 rule fixmate_dna:
     input:
@@ -190,7 +238,7 @@ rule fixmate_dna:
         shell("{params.samtools_binary} fixmate -@ {threads} -m {input.collated_dna} {output.fixmate_dna}")
 
 
-# Sort by coordinate (samtools sort)
+# Sort by coordinate (samtools sort) ============================================================================================
 
 rule sort_dna:
     input:
@@ -204,6 +252,8 @@ rule sort_dna:
     run:
         shell("{params.samtools_binary} sort -@ {threads} -o {output.coord_sorted_dna} {input.fixmate_dna}")
 
+# Index DNA BAM file ============================================================================================================
+
 rule index_dna_bam:
     input:
         dedup_dna = outdir_bam + "{sample}DNA_sorted.bam"
@@ -215,6 +265,8 @@ rule index_dna_bam:
         dedup_dna_index = outdir_bam + "{sample}DNA_sorted.bam.bai"
     run:
         shell("{params.samtools_binary} index -@ {threads} {input.dedup_dna}")
+
+# Normalized DNA coverage =======================================================================================================
 
 rule dna_coverage:
     input:
@@ -236,66 +288,88 @@ rule dna_coverage:
                --normalizeUsing CPM \
                -p {threads}")
 
+# Intersect DNA reads with genomic bins =========================================================================================
+
 rule dna_bin_intersect:
     input:
         dedup_dna = outdir_bam + "{sample}DNA_sorted.bam"
     params:
-        genome_bins = config["genome_bins"],
+        genome_bins = resource_dir + species + "/" + genome + "_{bin_size}_bins_named.bed.gz",
         bedtools_binary = config["bedtools_binary"]
     output:
-        dna_bin_intersect = outdir_intersects + "{sample}DNA_bin_intersect.txt"
+        dna_bin_intersect = outdir_intersects + "{sample}DNA_bin_intersect_{bin_size}.txt"
     run:
-        shell("{params.bedtools_binary} intersect -bed -wo -a {input.dedup_dna} -b {params.genome_bins} > {output.dna_bin_intersect}")
+        shell("{params.bedtools_binary} intersect -bed -f 0.51 -wo -a {input.dedup_dna} -b {params.genome_bins} > {output.dna_bin_intersect}")
 
-# Add intersect as proportion of gene width column to RNA-gene intersect
+# # Add intersect as proportion of gene width column to RNA-gene intersect
 
-rule intersect_DNA_proportion:
-    input:
-        dna_bin_intersect = outdir_intersects + "{sample}DNA_bin_intersect.txt"
-    output:
-        bin_width = outdir_intersects + "{sample}DNA_bin_intersect_proportions.txt"
-    run:
-        shell("awk 'BEGIN{{OFS=\"\t\"}} {{$18 = $17/($15-$14); print}}' {input.dna_bin_intersect} > {output.bin_width}")
+# rule intersect_DNA_proportion:
+#     input:
+#         dna_bin_intersect = outdir_intersects + "{sample}DNA_bin_intersect_{bin_size}.txt"
+#     output:
+#         bin_width = outdir_intersects + "{sample}DNA_bin_intersect_proportions_{bin_size}.txt"
+#     run:
+#         shell("awk 'BEGIN{{OFS=\"\t\"}} {{$18 = $17/($15-$14); print}}' {input.dna_bin_intersect} > {output.bin_width}")
 
-# Cut DNA intersect proportions to only required columns
+# # Cut DNA intersect proportions to only required columns
 
-rule cut_DNA_proportion:
-    input:
-        dna_bin_proportions = outdir_intersects + "{sample}DNA_bin_intersect_proportions.txt"
-    output:
-        dna_props_cut = temporary(outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut.txt")
-    run:
-        shell("cut -f 4,16,18 {input.dna_bin_proportions} > {output.dna_props_cut}")
+# rule cut_DNA_proportion:
+#     input:
+#         dna_bin_proportions = outdir_intersects + "{sample}DNA_bin_intersect_proportions_{bin_size}.txt"
+#     output:
+#         dna_props_cut = temporary(outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_{bin_size}.txt")
+#     run:
+#         shell("cut -f 4,16,18 {input.dna_bin_proportions} > {output.dna_props_cut}")
 
-# Sort DNA proportions by proportion of overlap
+# # Sort DNA proportions by proportion of overlap
 
-rule sort_dna_props:
-    input:
-        dna_props_cut = outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut.txt"
-    output:
-        dna_props_cut_sorted = temporary(outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_sorted.txt")
-    threads:
-        config["threads"]
-    run:
-        shell("sort -S 50% --parallel={threads} -k 1,1 -k 3,3r {input.dna_props_cut} > {output.dna_props_cut_sorted}")
+# rule sort_dna_props:
+#     input:
+#         dna_props_cut = outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_{bin_size}.txt"
+#     output:
+#         dna_props_cut_sorted = temporary(outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_sorted_{bin_size}.txt")
+#     threads:
+#         config["threads"]
+#     run:
+#         shell("sort -S 50% --parallel={threads} -k 1,1 -k 3,3r {input.dna_props_cut} > {output.dna_props_cut_sorted}")
 
-rule unique_sorted_dna_props:
-    input:
-        dna_props_cut_sorted = outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_sorted.txt"
-    output:
-        dna_props_cut_unique = temporary(outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_sorted_unique.txt")
-    threads:
-        config["threads"]
-    run:
-        shell("sort -S 50% --parallel={threads} -u -k 1b,1 {input.dna_props_cut_sorted} > {output.dna_props_cut_unique}")
-    
+# rule unique_sorted_dna_props:
+#     input:
+#         dna_props_cut_sorted = outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_sorted_{bin_size}.txt"
+#     output:
+#         dna_props_cut_unique = temporary(outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_sorted_unique_{bin_size}.txt")
+#     threads:
+#         config["threads"]
+#     run:
+#         shell("sort -S 50% --parallel={threads} -u -k 1b,1 {input.dna_props_cut_sorted} > {output.dna_props_cut_unique}")
+
 rule max_cut_dna:
     input:
-        dna_props_cut_unique = outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_sorted_unique.txt"
+        dna_props_cut_unique = outdir_intersects + "{sample}DNA_bin_intersect_{bin_size}.txt"
     output:
-        dna_bin_maximums = outdir_intersects + "{sample}DNA_bin_intersect_maximums_cut.txt"
+        dna_bin_maximums = outdir_intersects + "{sample}DNA_bin_intersect_maximums_cut_{bin_size}.txt"
+    threads:
+        config["threads"]
     run:
-        shell("cut -f 1,2 {input.dna_props_cut_unique} > {output.dna_bin_maximums}") 
+        shell("cut -f 4,16 {input.dna_props_cut_unique} > {output.dna_bin_maximums}") 
+
+rule sort_max_cut_dna:
+    input:
+        dna_bin_maximums = outdir_intersects + "{sample}DNA_bin_intersect_maximums_cut_{bin_size}.txt"
+    output:
+        dna_bin_maximums_sorted = outdir_intersects + "{sample}DNA_bin_intersect_maximums_cut_sorted_{bin_size}.txt"
+    threads:
+        config["threads"]
+    run:
+        shell("sort --parallel {threads} -S 50% -k 1,1 {input.dna_bin_maximums} > {output.dna_bin_maximums_sorted}")
+
+# rule max_cut_dna:
+#     input:
+#         dna_props_cut_unique = outdir_intersects + "{sample}DNA_bin_intersect_proportions_cut_sorted_unique_{bin_size}.txt"
+#     output:
+#         dna_bin_maximums = outdir_intersects + "{sample}DNA_bin_intersect_maximums_cut_{bin_size}.txt"
+#     run:
+#         shell("cut -f 1,2 {input.dna_props_cut_unique} > {output.dna_bin_maximums}") 
 
 
 # select maximum proportion alignments per read
@@ -763,6 +837,16 @@ if method == "Red-C":
         run:
             shell("Rscript {params.redc_intersect_max} --three {input.rna3_max} --uniquefive {input.rna5_unique} --multifive {input.rna5_multi} --output {output.max_intersects}")
 
+    rule sort_red_rna_intersects:
+        input:
+            intersects = outdir_intersects + "{sample}RNA_gene_intersect_maximums_cut.txt"
+        output:
+            sorted_intersects = outdir_intersects + "{sample}RNA_gene_intersect_maximums_cut_sorted.txt"
+        threads:
+            config["threads"]
+        run:
+            shell("sort -S 50% --parallel={threads} -k 1b,1 {input.intersects} > {output.sorted_intersects}")
+
 else:
         
     # remove ribosomal RNA reads
@@ -832,7 +916,7 @@ else:
         params:
             blacklist = config["blacklist"]
         output:
-            no_blacklist_rna = temporary(outdir_bam + "{sample}RNA_Aligned.out.bl.bam")
+            no_blacklist_rna = temporary(outdir_bam + "{sample}RNA_Aligned.out.bl.bam") # last working version was without .bl
         run:
             shell("bedtools intersect -v -a {input.aligned_rna} -b {params.blacklist} > {output.no_blacklist_rna}")
 
@@ -840,7 +924,7 @@ else:
 
     rule unique_rna:
         input:
-            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bl.bam"
+            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bl.bam" # last working version was without .bl
         threads:
             config["threads"]
         params:
@@ -1088,17 +1172,9 @@ else:
         output:
             maximum_intersects = outdir_intersects + "{sample}RNA_gene_intersect_maximums_cut.txt"
         params: 
-            intersect_processing = workflow_dir + "scripts/intersect_processing.R",
-            intersect_rule_unique = config.get("intersect_rule_unique", "all"),
-            intersect_rule_multi = config.get("intersect_rule_multi", "all")
+            intersect_processing = workflow_dir + "scripts/intersect_processing.R"
         run:
-            shell("Rscript {params.intersect_processing} "
-              "--unique {input.unique_intersect} "
-              "--multi {input.multi_intersect} "
-              "--output {output.maximum_intersects} "
-              "--intersect-rule-unique {params.intersect_rule_unique} "
-              "--intersect-rule-multi {params.intersect_rule_multi}")
-
+            shell("Rscript {params.intersect_processing} --unique {input.unique_intersect} --multi {input.multi_intersect} --output {output.maximum_intersects}")
 
     rule sort_rna_intersects:
         input:
@@ -1115,39 +1191,75 @@ else:
 rule join_RNA_and_DNA:
     input:
         cut_rna = outdir_intersects + "{sample}RNA_gene_intersect_maximums_cut_sorted.txt",
-        cut_dna = outdir_intersects + "{sample}DNA_bin_intersect_maximums_cut.txt"
+        cut_dna = outdir_intersects + "{sample}DNA_bin_intersect_maximums_cut_sorted_{bin_size}.txt"
     output:
-        joined_rna_dna = outdir_merge + "{sample}RNA-bin_pairs.txt"
+        joined_rna_dna = outdir_merge + "{sample}RNA-bin_pairs_{bin_size}.txt"
     run:
         shell("join -t$'\t' -j 1 -o 1.1,1.2,2.1,2.2 {input.cut_rna} {input.cut_dna} > {output.joined_rna_dna}")
 
-# count RNA-bin pairs
+# sort joined reads by RNA/bin
 
-rule count_joins:
+rule sort_join:
     input:
-        joined_rna_dna = outdir_merge + "{sample}RNA-bin_pairs.txt"
+        joined_rna_dna = outdir_merge + "{sample}RNA-bin_pairs_{bin_size}.txt"
     output:
-        rna_bin_counts = outdir_counts + "{sample}RNA-bin_counts.txt"
+        sorted_rna_dna = temporary(outdir_merge + "{sample}RNA-bin_pairs_sorted_{bin_size}.txt")
     threads:
         config["threads"]
     run:
-        shell("sort -S 50% --parallel {threads} -k 2,2 -k 4,4 {input.joined_rna_dna} | cut -f 2,4 | uniq -c | awk '{{print $2\"\t\"$3\"\t\"$1}}' > {output.rna_bin_counts}")
+        shell("sort -S 50% --parallel {threads} -k 2,2 -k 4,4 {input.joined_rna_dna} > {output.sorted_rna_dna}")
+
+rule cut_join:
+    input:
+        sorted_rna_dna = outdir_merge + "{sample}RNA-bin_pairs_sorted_{bin_size}.txt"
+    output:
+        cut_rna_dna = temporary(outdir_merge + "{sample}RNA-bin_pairs_cut_{bin_size}.txt")
+    run:
+        shell("cut -f 2,4 {input.sorted_rna_dna} > {output.cut_rna_dna}")
+
+rule count_joins:
+    input:
+        cut_rna_dna = outdir_merge + "{sample}RNA-bin_pairs_cut_{bin_size}.txt"
+    output:
+        rna_bin_counts = temporary(outdir_counts + "{sample}RNA-bin_counts_raw_{bin_size}.txt")
+    run:
+        shell("uniq -c {input.cut_rna_dna} > {output.rna_bin_counts}")
+
+rule format_counts:
+    input:
+        rna_bin_counts = outdir_counts + "{sample}RNA-bin_counts_raw_{bin_size}.txt"
+    output:
+        formatted_counts = outdir_counts + "{sample}RNA-bin_counts_{bin_size}.txt"
+    run:
+        shell("awk 'OFS=\"\t\" {{print $2,$3,$1}}' {input.rna_bin_counts} > {output.formatted_counts}")
+
+# count RNA-bin pairs
+
+# rule count_joins:
+#     input:
+#         joined_rna_dna = outdir_merge + "{sample}RNA-bin_pairs_{bin_size}.txt"
+#     output:
+#         rna_bin_counts = outdir_counts + "{sample}RNA-bin_counts_{bin_size}.txt"
+#     threads:
+#         config["threads"]
+#     run:
+#         shell("sort -S 50% --parallel {threads} -k 2,2 -k 4,4 {input.joined_rna_dna} | cut -f 2,4 | uniq -c | awk '{{print $2\"\t\"$3\"\t\"$1}}' > {output.rna_bin_counts}")
 
 # Call interactions with RADIAnT
 
 rule radiant:
     input:
-        counts = outdir_counts + "{sample}RNA-bin_counts.txt"    
+        counts = outdir_counts + "{sample}RNA-bin_counts_{bin_size}.txt"
     params:
         gtf = config["gtf"],
-        counts = outdir_counts + "{sample}RNA-bin_counts.txt",
-        bins = config["genome_bins"],
-        species = config["species"],
+        counts = outdir_counts + "{sample}RNA-bin_counts_{bin_size}.txt",
+        bins =  resource_dir + species + "/" + genome + "_{bin_size}_bins_named.bed.gz",
+        species = species,
         outdir = outdir_interactions,
-        name = "{sample}",
+        name = "{sample}{bin_size}_",
         RADIAnT_command_line = workflow_dir + "scripts/RADIAnT_command_line.R"
     output:
-        rna_bin_interactions = outdir_interactions + "{sample}RADIAnT_results.txt"
+        rna_bin_interactions = outdir_interactions + "{sample}{bin_size}_RADIAnT_results.txt"
     run:
         shell("Rscript {params.RADIAnT_command_line} \
                --gtf {params.gtf} \
@@ -1161,27 +1273,33 @@ rule radiant:
 if method == 'Red-C':
     rule sankey: 
         input: 
-            unsplit = fq_dir + "",
-            rna_fastq = fq_dir + "{sample}"+config["rna_fastq_suffix"],
-            rna_fastq_depl = outdir_fastq + "{sample}RNA5_depleted.fastq",
-            dna_fastq = fq_dir + "{sample}"+config["dna_fastq_suffix"],
+            ribo_stats= outdir_fastq + "{sample}rRNA5_removal_stats.txt",
             rna_map_log = outdir_bam + "{sample}RNA5_Log.final.out",
-            dna_map_log = outdir_bam + "{sample}DNA_Log.final.out",
-            rna_unique_intersect = outdir_intersects + "{sample}RNA5_gene_intersect.txt",
-            rna_multi_intersect = outdir_intersects + "{sample}5",
-            dna_bin_intersect = outdir_intersects + "{sample}DNA_bin_intersect_maximums_cut.txt",
-            pairs = outdir_merge + "{sample}RNA-bin_pairs.txt",
-            radiant = outdir_interactions + "{sample}RADIAnT_results.txt"
+            rna_bin_interactions = outdir_interactions + "{sample}RADIAnT_results.txt"
         output:
-            svg = outdir_logs + "{sample}Sankey.svg"
+            svg = outdir_logs + "{sample}sankey.svg",
+            png = outdir_logs + "{sample}sankey.png",
+            txt = outdir_logs + "{sample}read_stats.txt"
         params: 
-            plot_Sankey = workflow_dir + "scripts/plot_Sankey.R",
-            outdir = outdir_logs
+            plot_read_stats = workflow_dir + "scripts/plot_read_stats.R"
         run:
-            shell("Rscript {params.plot_Sankey} --unsplit {input.unsplit} --rnafastq {input.rna_fastq} --deplrnafastq {input.rna_fastq_depl} --dnafastq {input.dna_fastq} --rnalog {input.rna_map_log} --dnalog {input.dna_map_log} --rnauniqueintersect {input.rna_unique_intersect} --rnamultiintersect {input.rna_multi_intersect} --dnaintersect {input.dna_bin_intersect} --pairs {input.pairs} --radiant {input.radiant} --output {params.outdir}{wildcards.sample}")
-
+            shell("Rscript {params.plot_read_stats} {input.ribo_stats} {input.rna_map_log} {input.rna_bin_interactions} {output.svg} {output.png} {output.txt}")
 else:
     rule sankey: 
+        input: 
+            ribo_stats= outdir_fastq + "{sample}rRNA_removal_stats.txt",
+            rna_map_log = outdir_bam + "{sample}RNA_Log.final.out",
+            rna_bin_interactions = outdir_interactions + "{sample}RADIAnT_results.txt"
+        output:
+            svg = outdir_logs + "{sample}sankey.svg",
+            png = outdir_logs + "{sample}sankey.png",
+            txt = outdir_logs + "{sample}read_stats.txt"
+        params: 
+            plot_read_stats = workflow_dir + "scripts/plot_read_stats.R"
+        run:
+            shell("Rscript {params.plot_read_stats} {input.ribo_stats} {input.rna_map_log} {input.rna_bin_interactions} {output.svg} {output.png} {output.txt}")
+
+    rule updated_sankey: 
         input: 
             unsplit = fq_dir + "",
             rna_fastq = fq_dir + "{sample}"+config["rna_fastq_suffix"],
@@ -1195,12 +1313,14 @@ else:
             pairs = outdir_merge + "{sample}RNA-bin_pairs.txt",
             radiant = outdir_interactions + "{sample}RADIAnT_results.txt"
         output:
-            svg = outdir_logs + "{sample}Sankey.svg"
+            svg = outdir_logs + "{sample}Sankey_updated.svg",
+            #png = outdir_logs + "{sample}Sankey_updated.png"
+            #txt = outdir_logs + "{sample}read_stats.txt"
         params: 
-            plot_Sankey = workflow_dir + "scripts/plot_Sankey.R",
+            plot_read_stats = workflow_dir + "scripts/combined_Sankey.R",
             outdir = outdir_logs
         run:
-            shell("Rscript {params.plot_Sankey} --unsplit {input.unsplit} --rnafastq {input.rna_fastq} --deplrnafastq {input.rna_fastq_depl} --dnafastq {input.dna_fastq} --rnalog {input.rna_map_log} --dnalog {input.dna_map_log} --rnauniqueintersect {input.rna_unique_intersect} --rnamultiintersect {input.rna_multi_intersect} --dnaintersect {input.dna_bin_intersect} --pairs {input.pairs} --radiant {input.radiant} --output {params.outdir}{wildcards.sample}")
+            shell("Rscript {params.plot_read_stats} --unsplit {input.unsplit} --rnafastq {input.rna_fastq} --deplrnafastq {input.rna_fastq_depl} --dnafastq {input.dna_fastq} --rnalog {input.rna_map_log} --dnalog {input.dna_map_log} --rnauniqueintersect {input.rna_unique_intersect} --rnamultiintersect {input.rna_multi_intersect} --dnaintersect {input.dna_bin_intersect} --pairs {input.pairs} --radiant {input.radiant} --output {params.outdir}{wildcards.sample}")
 
 rule gene_int_stats: 
     input: 
@@ -1208,10 +1328,11 @@ rule gene_int_stats:
     params: 
         plot_gene_stats = workflow_dir + "scripts/plot_gene_stats.R",
         gtf = config["gtf"],
-        sample_name = "{sample}",
         outdir_interactions = outdir_interactions
     output:
         txt = outdir_interactions + "{sample}genes.number_of_interactions.txt"
     run:
-        shell("Rscript {params.plot_gene_stats} {input.rna_bin_interactions} {params.gtf} {params.sample_name} {params.outdir_interactions} {output.txt}")
+        shell("Rscript {params.plot_gene_stats} {input.rna_bin_interactions} {params.gtf} {params.outdir_interactions} {output.txt}")
+
+
 
