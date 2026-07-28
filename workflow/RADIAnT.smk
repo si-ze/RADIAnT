@@ -21,6 +21,10 @@ species = config["species"]
 
 genome = config["genome"]
 
+# blacklist ======================================================================================================================== # ADDED START
+
+# ADDED END
+
 # method ========================================================================================================================
 
 method = config["method"][0]
@@ -65,6 +69,7 @@ outdir_interactions = outdir_base + "interactions/"
 
 outdir_logs = outdir_base + "logs/"
 
+
 #################################################################################################################################
 # Rules =========================================================================================================================
 #################################################################################################################################
@@ -75,25 +80,42 @@ wildcard_constraints:
 	sample = "(" + "|".join(map(str,samples)) + ")",
 	bin_size = "(" + "|".join(map(str,bin_sizes)) + ")"
 
+
+
+
+
 # all ===========================================================================================================================
 
-if method == 'Red-C':
 
-    rule all:
-        input:
-            expand(outdir_interactions + "{sample}{bin_size}_RADIAnT_results.txt", sample=samples, bin_size=bin_sizes),
-            #expand(outdir_interactions + "{sample}RADIAnT_results.txt", sample=samples),
-            #expand(outdir_logs + "{sample}sankey.svg", sample=samples), 
-            #expand(outdir_logs + "{sample}sankey.png", sample=samples), 
-            #expand(outdir_logs + "{sample}read_stats.txt", sample=samples),
-            #expand(outdir_interactions + "{sample}genes.number_of_interactions.txt", sample=samples),
-            star_index + "Log.out"
+rule all:
+    input:
+        expand(outdir_interactions + "{sample}{bin_size}_RADIAnT_results.txt", sample=samples, bin_size = bin_sizes),
+        star_index + "Log.out"
 
-else:
-    rule all:
-        input:
-            expand(outdir_interactions + "{sample}{bin_size}_RADIAnT_results.txt", sample=samples, bin_size = bin_sizes),
-            star_index + "Log.out"
+
+# build blacklist  ============================================================================================================== # ADDED START
+
+rule build_effective_blacklist:
+  input:
+    blacklist = config["blacklist"],
+    gtf = config["gtf"],
+    script = workflow_dir + "scripts/build_effective_blacklist.R"
+  output:
+    effective_blacklist = outdir_base + "effective_blacklist.bed"
+  params:
+    biotypes = ",".join(config.get("blacklist_biotypes", [])),
+    bedtools_binary = config["bedtools_binary"]
+  run:
+    shell("""Rscript {input.script} \
+    --blacklist {input.blacklist} \
+    --gtf {input.gtf} \
+    --biotypes "{params.biotypes}" \
+    --outbed {output.effective_blacklist}
+    """)
+# ADDED END
+    
+
+
 
 
 # If no STAR index provided, decompress provided genome FASTA to build index ====================================================
@@ -184,22 +206,22 @@ rule align_dna:
 
 # Remove blacklisted regions from DNA ===========================================================================================
 
-rule no_blacklist_dna:
+rule blacklist_filtered_dna:
     input:
-        aligned_dna = outdir_bam + "{sample}DNA_Aligned.out.bam"
+      aligned_dna = outdir_bam + "{sample}DNA_Aligned.out.bam"
     params:
-        blacklist = config["blacklist"]
+        blacklist = outdir_base + "effective_blacklist.bed"
     output:
-        no_blacklist_dna = temporary(outdir_bam + "{sample}DNA_Aligned.out.bl.bam")
+        blacklist_filtered_dna = temporary(outdir_bam + "{sample}DNA_Aligned.out.bl_filt.bam")
     run:
-        shell("bedtools intersect -v -a {input.aligned_dna} -b {params.blacklist} > {output.no_blacklist_dna}")
+        shell("bedtools intersect -v -a {input.aligned_dna} -b {params.blacklist} > {output.blacklist_filtered_dna}")
 
 
 # extract uniquely mapping reads ================================================================================================
 
 rule unique_dna:
     input:
-        no_blacklist_dna = outdir_bam + "{sample}DNA_Aligned.out.bl.bam"
+        blacklist_filtered_dna = outdir_bam + "{sample}DNA_Aligned.out.bl_filt.bam"
     threads:
         config["threads"]
     params:
@@ -207,7 +229,7 @@ rule unique_dna:
     output:
         unique_dna = temporary(outdir_bam + "{sample}DNA_unique.bam")
     run:
-        shell("{params.samtools_binary} view -@ {threads} -q 255 -o {output.unique_dna} {input.no_blacklist_dna}")
+        shell("{params.samtools_binary} view -@ {threads} -q 255 -o {output.unique_dna} {input.blacklist_filtered_dna}")
 
 # Collate bam (samtools collate) ================================================================================================
 
@@ -276,7 +298,7 @@ rule dna_coverage:
         config["threads"]
     params:
         bamCoverage_binary = config["bamCoverage_binary"],
-        blacklist = config["blacklist"]
+        blacklist = outdir_base + "effective_blacklist.bed"
     output:
         dedup_dna_bw = outdir_bw + "{sample}DNA_sorted_cpm.bw"
     run:
@@ -910,21 +932,21 @@ else:
 
     # Remove blacklisted regions from RNA
 
-    rule no_blacklist_rna:
+    rule blacklist_filtered_rna:
         input:
             aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bam"
         params:
-            blacklist = config["blacklist"]
+            blacklist = outdir_base + "effective_blacklist.bed"
         output:
-            no_blacklist_rna = temporary(outdir_bam + "{sample}RNA_Aligned.out.bl.bam") # last working version was without .bl
+            blacklist_filtered_rna = temporary(outdir_bam + "{sample}RNA_Aligned.out.bl_filt.bam") # last working version was without .bl
         run:
-            shell("bedtools intersect -v -a {input.aligned_rna} -b {params.blacklist} > {output.no_blacklist_rna}")
+            shell("bedtools intersect -v -a {input.aligned_rna} -b {params.blacklist} > {output.blacklist_filtered_rna}")
 
     # Collate bam (samtools collate)
 
     rule unique_rna:
         input:
-            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bl.bam" # last working version was without .bl
+            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bl_filt.bam" # last working version was without .bl
         threads:
             config["threads"]
         params:
@@ -1060,7 +1082,7 @@ else:
     #     threads:
     #         config["threads"]
     #     params:
-    #         blacklist = config["blacklist"]
+    #         blacklist = outdir_base + "effective_blacklist.bed"
     #     output:
     #         dedup_rna_bw = "{sample}RNA_dedup_cpm.bw"
     #     run:
@@ -1082,7 +1104,7 @@ else:
             config["threads"]
         params:
             bamCoverage_binary = config["bamCoverage_binary"],
-            blacklist = config["blacklist"]
+            blacklist = temporary(outdir_base + "effective_blacklist.bed")
         output:
             dedup_rna_bw = outdir_bw + "{sample}RNA_sorted_cpm.bw"
         run:
