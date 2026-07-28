@@ -21,9 +21,6 @@ species = config["species"]
 
 genome = config["genome"]
 
-# blacklist ======================================================================================================================== # ADDED START
-
-# ADDED END
 
 # method ========================================================================================================================
 
@@ -101,7 +98,7 @@ rule build_effective_blacklist:
     gtf = config["gtf"],
     script = workflow_dir + "scripts/build_effective_blacklist.R"
   output:
-    effective_blacklist = outdir_base + "effective_blacklist.bed"
+    effective_blacklist = temporary(outdir_base + "effective_blacklist.bed")
   params:
     biotypes = ",".join(config.get("blacklist_biotypes", [])),
     bedtools_binary = config["bedtools_binary"]
@@ -206,15 +203,14 @@ rule align_dna:
 
 # Remove blacklisted regions from DNA ===========================================================================================
 
-rule blacklist_filtered_dna:
+rule blacklist_filter_dna:
     input:
-      aligned_dna = outdir_bam + "{sample}DNA_Aligned.out.bam"
-    params:
-        blacklist = outdir_base + "effective_blacklist.bed"
+      aligned_dna = outdir_bam + "{sample}DNA_Aligned.out.bam",
+      blacklist = outdir_base + "effective_blacklist.bed"
     output:
         blacklist_filtered_dna = temporary(outdir_bam + "{sample}DNA_Aligned.out.bl_filt.bam")
     run:
-        shell("bedtools intersect -v -a {input.aligned_dna} -b {params.blacklist} > {output.blacklist_filtered_dna}")
+        shell("bedtools intersect -v -a {input.aligned_dna} -b {input.blacklist} > {output.blacklist_filtered_dna}")
 
 
 # extract uniquely mapping reads ================================================================================================
@@ -932,15 +928,14 @@ else:
 
     # Remove blacklisted regions from RNA
 
-    rule blacklist_filtered_rna:
+    rule blacklist_filter_rna:
         input:
-            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bam"
-        params:
+            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bam",
             blacklist = outdir_base + "effective_blacklist.bed"
         output:
             blacklist_filtered_rna = temporary(outdir_bam + "{sample}RNA_Aligned.out.bl_filt.bam") # last working version was without .bl
         run:
-            shell("bedtools intersect -v -a {input.aligned_rna} -b {params.blacklist} > {output.blacklist_filtered_rna}")
+            shell("bedtools intersect -v -a {input.aligned_rna} -b {input.blacklist} > {output.blacklist_filtered_rna}")
 
     # Collate bam (samtools collate)
 
@@ -1104,7 +1099,7 @@ else:
             config["threads"]
         params:
             bamCoverage_binary = config["bamCoverage_binary"],
-            blacklist = temporary(outdir_base + "effective_blacklist.bed")
+            blacklist = outdir_base + "effective_blacklist.bed"
         output:
             dedup_rna_bw = outdir_bw + "{sample}RNA_sorted_cpm.bw"
         run:
