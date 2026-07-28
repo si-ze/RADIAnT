@@ -1,26 +1,44 @@
 method:
-- RADICL
+  - RADICL
 
-workflow_directory: /path/to/RADIAnT/workflow/ # Location of RADIAnT workflow (hodling snakemake file and scripts/ directory)
+workflow_directory: # /path/to/RADIAnT/workflow/ # Location of RADIAnT workflow (hodling snakemake file and scripts/ directory)
 
-fastq_directory: /path/to/RADIAnT/example/RADICL/ # Location of input fastq files
+resource_directory: /path/to/RADIAnT/RADIAnT/resources/
+
+output_directory: /path/to/RADIAnT/results/RADICL_mESC/ # Specify location results should be written to
+
 sample_base: # Common prefix of all fastq files with reads belonging to the experiment to be analysed
-- mESC_2FA_n1_
+  - mESC_2FA_n1_
 # Specify the suffixes of the DNA and RNA reads. DO NOT include .gz even if the reads are compressed. 
 # If for example your reads are named my_run.DNA.fastq and my_run.RNA.fastq, set sample_base: my_run., dna_fastq_suffix: DNA.fastq, rna_fastq_suffix: RNA.fastq
 dna_fastq_suffix: DNA.fastq 
 rna_fastq_suffix: RNA.fastq 
 
-output_directory: /path/to/RADIAnT/results/RADICL/ # Specify location results should be written to
+fastq_directory: /path/to/RADIAnT/example/RADICL/ # Location of input fastq files
 
 species: mouse # currently supported: mouse and human
-genome_fasta: # either provide a path to your genome fasta or, if no genome fasta is needed because STAR index is already built, put None
-# if you need a genome fasta file, please download from https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M30/GRCm39.genome.fa.gz
+
+genome: mm39 # e.g. mm39 or hg38
+
+bin_sizes:
+- 5kb
+- 25kb
+- 50kb
+- 100kb
+
+
+genome_fasta:  # either provide a path to your genome fasta or, if no genome fasta is needed because STAR index is already built, put None
+# # if you need a genome fasta file, please download from https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M30/GRCm39.genome.fa.gz
+
+gtf: /path/to/RADIAnT/resources/mouse/gencode.vM29.annotation.gtf.gz
 genome_bins: /path/to/RADIAnT/resources/mouse/mm39.05kb.bed.gz
 genes: /path/to/RADIAnT/resources/mouse/mm39.ncbiRefSeq.genes.bed.gz
-gtf: /path/to/RADIAnT/resources/mouse/gencode.vM29.annotation.gtf.gz
+rrna_fasta: /path/to/RADIAnT/resources/mouse/arb-silva.de_2024-03-25_id1313737_tax_silva_trunc.fasta.gz
 blacklist: /path/to/RADIAnT/resources/mouse/mm39.excluderanges.bed.gz
-rrna_fasta:  /path/to/RADIAnT/resources/mouse/arb-silva.de_2024-03-25_id1313737_tax_silva_trunc.fasta.gz
+blacklist_biotypes: # if no biotypes should be blacklisted, set this to an empty list: blacklist_biotypes: []
+  - snRNA
+  # - snoRNA
+  # - rRNA
 
 threads: 8
 star_binary: # provide the path to the STAR binary, e.g. /home/user/STAR-2.7.9a/source/STAR
@@ -29,6 +47,9 @@ bedtools_binary: # provide the path to the bedtools binary, e.g. /usr/bin/bedtoo
 samtools_binary: # provide the path to the samtools binary, /usr/bin/samtools
 bamCoverage_binary: # provide the path to the bamCoverage binary, /home/user/.local/bin/bamCoverage
 bbduk_script: # provide the path to the bbduk script, e.g. /home/user/software/bbmap/bbduk.sh
+
+
+
 
 
 
