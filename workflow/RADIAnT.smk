@@ -1182,6 +1182,7 @@ else:
         run:
             shell("{params.bedtools_binary} intersect -bed -wo -abam {input.dedup_rna} -b {params.genes} > {output.rna_gene_intersect}")
 
+  
     rule process_intersections:
         input:
             unique_intersect = outdir_intersects + "{sample}RNA_gene_intersect.txt",
@@ -1189,9 +1190,16 @@ else:
         output:
             maximum_intersects = outdir_intersects + "{sample}RNA_gene_intersect_maximums_cut.txt"
         params: 
-            intersect_processing = workflow_dir + "scripts/intersect_processing.R"
+            intersect_processing = workflow_dir + "scripts/intersect_processing.R",
+            intersect_rule_unique = config.get("intersect_rule_unique", "all"),
+            intersect_rule_multi = config.get("intersect_rule_multi", "all")
         run:
-            shell("Rscript {params.intersect_processing} --unique {input.unique_intersect} --multi {input.multi_intersect} --output {output.maximum_intersects}")
+            shell("Rscript {params.intersect_processing} "
+              "--unique {input.unique_intersect} "
+              "--multi {input.multi_intersect} "
+              "--output {output.maximum_intersects} "
+              "--intersect-rule-unique {params.intersect_rule_unique} "
+              "--intersect-rule-multi {params.intersect_rule_multi}")
 
     rule sort_rna_intersects:
         input:

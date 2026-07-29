@@ -17,8 +17,8 @@ parser = add_argument(parser, '--output', type = 'character', help = 'Maximal in
 # format: two-column read_id, gene_id ("max" / best intersect)
 
 # Tie-breaking rules
-parser = add_argument(parser, '--intersect-rule-unique', type = 'character', help = 'Which criterion to define the main gene by. "proportion" = longest overlap with read; "count" = highest read count (correlate of expression); "all" = return all overlaps)')
-parser = add_argument(parser, '--intersect-rule-multi', type = 'character', help = 'Which criterion to define the main gene by. "proportion" = longest overlap with read; "count" = highest read count (correlate of expression); "all" = return all overlaps)')
+parser = add_argument(parser, '--intersect-rule-unique', type = 'character', help = 'Which criterion to define the main gene by. "proportion" = longest overlap with read; "count" = highest read count (correlate of expression); "propcount"= mulplicative combination of proportion and count; "all" = return all overlaps)')
+parser = add_argument(parser, '--intersect-rule-multi', type = 'character', help = 'Which criterion to define the main gene by. "proportion" = longest overlap with read; "count" = highest read count (correlate of expression); "propcount"= mulplicative combination of proportion and count; "all" = return all overlaps)')
 
 # Parse command-line arguments
 arg_vector = parse_args(parser)
