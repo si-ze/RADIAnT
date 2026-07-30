@@ -24,18 +24,19 @@ biotypes_string = arg_vector$biotypes
 
 
 # TESTING
-gtf_file = "/projects/tim/RADICL/cat_RADICL_endo/config/config_cat_RADICL_EMT.yaml"
-blacklist_file = "/projects/bioinformatics/genome_annotations/t2t/T2T_mock_blacklist.bed"
+# gtf_file = "/projects/tim/RADICL/cat_RADICL_endo/config/config_cat_RADICL_EMT.yaml"
+# blacklist_file = "/projects/bioinformatics/genome_annotations/t2t/T2T_mock_blacklist.bed"
 
 
-gtf_file = "/projects/bioinformatics/tools/RADIAnT/resources/mouse/gencode.vM36.annotation.gtf.gz"
-blacklist_file = "/projects/bioinformatics/tools/RADIAnT/resources/mouse/mm39.excluderanges.bed.gz"
-biotypes_string="snRNA,        snoRNA"
+# gtf_file = "/projects/bioinformatics/tools/RADIAnT/resources/mouse/gencode.vM36.annotation.gtf.gz"
+# blacklist_file = "/projects/bioinformatics/tools/RADIAnT/resources/mouse/mm39.excluderanges.bed.gz"
+# biotypes_string="snRNA,        snoRNA"
 # TESTING
 
 
 
 # Get the existing blacklist
+message("Used blacklist: ", blacklist_file)
 blacklist <- data.table::fread(blacklist_file)
 blacklist_gr <- GRanges(
   seqnames = blacklist$V1,
@@ -48,6 +49,7 @@ blacklist_gr <- GRanges(
 
 
 # Get all biotypes which should be added as blacklist-regions
+message("Biotypes selected to be blacklisted: ", biotypes_string)
 if (biotypes_string == "") {
   biotypes = character(0)
 } else {
@@ -81,8 +83,10 @@ biotypes_gr <- GRanges(
   ranges = IRanges(start=biotype_rows$start, end=biotype_rows$end)
 )
 
+message("Adding biotypes to blacklist ...")
 # combine the pre-existing blacklist with the biotypes to exclude --> this is the effective blacklist
 effective_blacklist_gr <- GenomicRanges::reduce(c(blacklist_gr, biotypes_gr))
 # write to BED (should be found in /resources/effective_blacklist.bed)
 rtracklayer::export.bed(effective_blacklist_gr, con=arg_vector$outbed)
+message("Effective blacklist generated.")
 
