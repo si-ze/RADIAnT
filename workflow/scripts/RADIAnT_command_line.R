@@ -1,3 +1,5 @@
+
+
 library(data.table)
 library(ggplot2)
 library(ggarchery)
@@ -134,6 +136,14 @@ getInputData <- function(countsFile, binAnnotationFile, gtfFile) {
   
   genes = genes %>%
     filter(type == 'gene')
+  
+  # GENCODE holds the column "gene_name", while others use "gene_id" for the Symbol ...
+  if(any(grepl("^gene_name$", colnames(genes)))){
+    genes$gene_name = make.unique(genes$gene_name)
+  } else {
+    genes$gene_name = make.unique(genes$gene)
+  }
+  
   
   genes$gene_name = make.unique(genes$gene_name)
   
