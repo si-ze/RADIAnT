@@ -90,7 +90,7 @@ rule all:
         star_index + "Log.out"
 
 
-# build blacklist  ============================================================================================================== # ADDED START
+# build blacklist  ==============================================================================================================
 
 rule build_effective_blacklist:
   input:
@@ -109,9 +109,6 @@ rule build_effective_blacklist:
     --biotypes "{params.biotypes}" \
     --outbed {output.effective_blacklist}
     """)
-# ADDED END
-    
-
 
 
 
@@ -461,10 +458,20 @@ if method == "Red-C":
                 --outFilterScoreMinOverLread 0 \
                 --outFilterMatchNminOverLread 0 \
                 --outFilterMatchNmin 0")
+                
+
+    rule blacklist_filter_rna5:
+        input:
+            aligned_rna = outdir_bam + "{sample}RNA5_Aligned.out.bam",
+            blacklist = outdir_base + "effective_blacklist.bed"
+        output:
+            blacklist_filtered_rna = temporary(outdir_bam + "{sample}RNA5_Aligned.out.bl_filt.bam") 
+        run:
+            shell("bedtools intersect -v -a {input.aligned_rna} -b {input.blacklist} > {output.blacklist_filtered_rna}")
 
     rule unique_rna5:
         input:
-            aligned_rna = outdir_bam + "{sample}RNA5_Aligned.out.bam"
+            aligned_rna = outdir_bam + "{sample}RNA5_Aligned.out.bl_filt.bam"
         threads:
             config["threads"]
         params:
@@ -679,10 +686,19 @@ if method == "Red-C":
                 --outFilterScoreMinOverLread 0 \
                 --outFilterMatchNminOverLread 0 \
                 --outFilterMatchNmin 0")
-
+                
+    rule blacklist_filter_rna3:
+        input:
+            aligned_rna = outdir_bam + "{sample}RNA3_Aligned.out.bam",
+            blacklist = outdir_base + "effective_blacklist.bed"
+        output:
+            blacklist_filtered_rna = temporary(outdir_bam + "{sample}RNA3_Aligned.out.bl_filt.bam") 
+        run:
+            shell("bedtools intersect -v -a {input.aligned_rna} -b {input.blacklist} > {output.blacklist_filtered_rna}")
+    
     rule unique_rna3:
         input:
-            aligned_rna = outdir_bam + "{sample}RNA3_Aligned.out.bam"
+            aligned_rna = outdir_bam + "{sample}RNA3_Aligned.out.bl_filt.bam"
         threads:
             config["threads"]
         params:
@@ -933,7 +949,7 @@ else:
             aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bam",
             blacklist = outdir_base + "effective_blacklist.bed"
         output:
-            blacklist_filtered_rna = temporary(outdir_bam + "{sample}RNA_Aligned.out.bl_filt.bam") # last working version was without .bl
+            blacklist_filtered_rna = temporary(outdir_bam + "{sample}RNA_Aligned.out.bl_filt.bam") 
         run:
             shell("bedtools intersect -v -a {input.aligned_rna} -b {input.blacklist} > {output.blacklist_filtered_rna}")
 
@@ -941,7 +957,7 @@ else:
 
     rule unique_rna:
         input:
-            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bl_filt.bam" # last working version was without .bl
+            aligned_rna = outdir_bam + "{sample}RNA_Aligned.out.bl_filt.bam" 
         threads:
             config["threads"]
         params:
