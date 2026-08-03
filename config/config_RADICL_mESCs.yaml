@@ -28,7 +28,7 @@ bin_sizes:
 
 genome_fasta:  # either provide a path to your genome fasta or, if no genome fasta is needed because STAR index is already built, put None
 # # if you need a genome fasta file, please download from https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M30/GRCm39.genome.fa.gz
-gtf: /path/to/RADIAnT/resources/mouse/gencode.vM29.annotation.gtf.gz
+gtf: /path/to/RADIAnT/resources/mouse/gencode.vM36.annotation.gtf.gz
 genome_bins: /path/to/RADIAnT/resources/mouse/mm39.05kb.bed.gz
 genes: /path/to/RADIAnT/resources/mouse/mm39.ncbiRefSeq.genes.bed.gz
 rrna_fasta: /path/to/RADIAnT/resources/mouse/arb-silva.de_2024-03-25_id1313737_tax_silva_trunc.fasta.gz
