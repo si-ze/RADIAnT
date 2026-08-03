@@ -3,7 +3,10 @@ method:
 
 workflow_directory: /path/to/RADIAnT/workflow/ # Location of RADIAnT workflow (hodling snakemake file and scripts/ directory)
 
-fastq_directory: /path/to/RADIAnT/example/RedC/ # Location of input fastq files
+resource_directory: /path/to/RADIAnT/RADIAnT/resources/
+
+output_directory: /path/to/RADIAnT/results/RedC/ # Specify location results should be written to
+
 sample_base: # Common prefix of all fastq files with reads belonging to the experiment to be analysed
 - Red-C_K562_N2_
 # Specify the suffixes of the DNA and RNA reads. DO NOT include .gz even if the reads are compressed. 
@@ -12,16 +15,31 @@ dna_fastq_suffix: DNA.fastq
 rna_fastq_suffix: RNA5.fastq 
 rna_2_fastq_suffix: RNA3.fastq 
 
-output_directory: /path/to/RADIAnT/results/RedC/ # Specify location results should be written to
+fastq_directory: /path/to/RADIAnT/example/RedC/ # Location of input fastq files
 
 species: human # currently supported: mouse and human
+
+genome: hg38 # provide the genome name as a string, e.g. mm39 or hg38
+
+bin_sizes:
+- 5kb
+- 25kb
+- 50kb
+- 100kb
+
 genome_fasta: # either provide a path to your genome fasta or, if no genome fasta is needed because STAR index is already built, put None
 # if you don't have a genome fasta please download one, e.g. from https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/latest_release/GRCh38.primary_assembly.genome.fa.gz
+
+
+gtf: /path/to/RADIAnT/resources/human/gencode.v45.annotation.gtf.gz
 genome_bins: /path/to/RADIAnT/resources/human/hg38_5kb_bins_named.bed.gz
 genes: /path/to/RADIAnT/resources/human/gencode.v45.annotation.genes.bed.gz
-gtf: /path/to/RADIAnT/resources/human/gencode.v45.annotation.gtf.gz
-blacklist: /path/to/RADIAnT/resources/human/hg38-blacklist.v2.bed.gz
 rrna_fasta:  /path/to/RADIAnT/resources/human/Silva_rRNA_Homo_sapiens.fasta.gz
+blacklist: /path/to/RADIAnT/resources/human/hg38-blacklist.v2.bed.gz
+blacklist_biotypes: # if no biotypes should be blacklisted, set this to an empty list: blacklist_biotypes: []
+  - snRNA
+  # - snoRNA
+  # - rRNA
 
 threads: 8
 star_binary: # provide the path to the STAR binary, e.g. /home/user/STAR-2.7.9a/source/STAR
@@ -30,4 +48,3 @@ bedtools_binary: # provide the path to the bedtools binary, e.g. /usr/bin/bedtoo
 samtools_binary: # provide the path to the samtools binary, /usr/bin/samtools
 bamCoverage_binary: # provide the path to the bamCoverage binary, /home/user/.local/bin/bamCoverage
 bbduk_script: # provide the path to the bbduk script, e.g. /home/user/software/bbmap/bbduk.sh
-
