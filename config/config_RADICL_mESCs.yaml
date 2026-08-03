@@ -18,7 +18,7 @@ fastq_directory: /path/to/RADIAnT/example/RADICL/ # Location of input fastq file
 
 species: mouse # currently supported: mouse and human
 
-genome: mm39 # e.g. mm39 or hg38
+genome: mm39 # provide the genome name as a string, e.g. mm39 or hg38
 
 bin_sizes:
 - 5kb
