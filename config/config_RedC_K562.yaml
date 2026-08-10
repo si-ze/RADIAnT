@@ -30,7 +30,6 @@ bin_sizes:
 genome_fasta: # either provide a path to your genome fasta or, if no genome fasta is needed because STAR index is already built, put None
 # if you don't have a genome fasta please download one, e.g. from https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/latest_release/GRCh38.primary_assembly.genome.fa.gz
 gtf: /path/to/RADIAnT/resources/human/gencode.v45.annotation.gtf.gz
-genome_bins: /path/to/RADIAnT/resources/human/hg38_5kb_bins_named.bed.gz
 genes: /path/to/RADIAnT/resources/human/gencode.v45.annotation.genes.bed.gz
 rrna_fasta:  /path/to/RADIAnT/resources/human/Silva_rRNA_Homo_sapiens.fasta.gz
 blacklist: /path/to/RADIAnT/resources/human/hg38-blacklist.v2.bed.gz
