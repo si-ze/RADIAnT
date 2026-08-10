@@ -36,8 +36,8 @@ rrna_fasta:  /path/to/RADIAnT/resources/human/Silva_rRNA_Homo_sapiens.fasta.gz
 blacklist: /path/to/RADIAnT/resources/human/hg38-blacklist.v2.bed.gz
 blacklist_biotypes: # if no biotypes should be blacklisted, set this to an empty list: blacklist_biotypes: []
   - snRNA
-  # - snoRNA
-  # - rRNA
+  - snoRNA
+  - rRNA
 
 threads: 8
 star_binary: # provide the path to the STAR binary, e.g. /home/user/STAR-2.7.9a/source/STAR
