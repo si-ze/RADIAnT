@@ -1293,7 +1293,7 @@ rule radiant:
     params:
         gtf = config["gtf"],
         counts = outdir_counts + "{sample}RNA-bin_counts_{bin_size}.txt",
-        bins =  resource_dir + species + "/" + bin_base + "_bins.{bin_size}.bed.gz", # bins =  resource_dir + species + "/" + genome + "_{bin_size}_bins_named.bed.gz", 
+        bins =  resource_dir + species + "/" + bin_base + ".{bin_size}_bins.bed.gz", 
         species = species,
         outdir = outdir_interactions,
         name = "{sample}{bin_size}_",
