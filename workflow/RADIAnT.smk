@@ -19,7 +19,7 @@ species = config["species"]
 
 # bin_base =======================================================================================================================
 
-bin_base = config["bin_base"] # TO DO: used to be: genome = config["genome"]
+bin_base = config["bin_base"] 
 
 # method ========================================================================================================================
 
@@ -37,7 +37,7 @@ print(samples)
 
 # Bin sizes for analysis ========================================================================================================
 
-bin_sizes = [str(x) for x in config["bin_sizes"]] # TO DO: used to be: bin_sizes = config["bin_sizes"]
+bin_sizes = [str(x) for x in config["bin_sizes"]] 
 
 print(bin_sizes)
 
@@ -307,26 +307,13 @@ rule dna_coverage:
 rule dna_bin_intersect:
     input:
         dedup_dna = outdir_bam + "{sample}DNA_sorted.bam", 
-        genome_bins = resource_dir + species + "/" + bin_base + "_bins.{bin_size}.bed.gz"
+        genome_bins = resource_dir + species + "/" + bin_base + ".{bin_size}_bins.bed.gz"
     params:
         bedtools_binary = config["bedtools_binary"]
     output: 
         dna_bin_intersect = outdir_intersects + "{sample}DNA_bin_intersect_{bin_size}.txt"
     run:
         shell("{params.bedtools_binary} intersect -bed -f 0.51 -wo -a {input.dedup_dna} -b {input.genome_bins} > {output.dna_bin_intersect}")
-
-# TO DO:  OLD VERSION REMOVE
-# rule dna_bin_intersect:
-#     input:
-#         dedup_dna = outdir_bam + "{sample}DNA_sorted.bam"
-#     params:
-#         genome_bins = resource_dir + species + "/" + genome + "_{bin_size}_bins_named.bed.gz",
-#         bedtools_binary = config["bedtools_binary"]
-#     output:
-#         dna_bin_intersect = outdir_intersects + "{sample}DNA_bin_intersect_{bin_size}.txt"
-#     run:
-#         shell("{params.bedtools_binary} intersect -bed -f 0.51 -wo -a {input.dedup_dna} -b {params.genome_bins} > {output.dna_bin_intersect}")
-# TO DO END
 
 # # Add intersect as proportion of gene width column to RNA-gene intersect
 
