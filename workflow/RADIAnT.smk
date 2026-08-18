@@ -170,7 +170,7 @@ rule gunzip_dna:
 
 rule align_dna:
     input:
-        dna_fastq = fq_dir + "{sample}"+config["dna_fastq_suffix"],
+        dna_fastq = fq_dir + "{sample}" + (config["dna_fastq_suffix"][:-3] if config["dna_fastq_suffix"].endswith(".gz") else config["dna_fastq_suffix"]), # fq_dir + "{sample}"+config["dna_fastq_suffix"],
         genome_parameters = star_index + "Log.out"
     threads:
         config["threads"]
